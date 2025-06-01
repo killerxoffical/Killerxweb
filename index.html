@@ -1,0 +1,3092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KillerX Ultra Premium</title>
+<!-- Firebase SDK scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+<style>
+  :root {
+    --primary: #6c5ce7;
+    --primary-dark: #5649c0;
+    --secondary: #00cec9;
+    --danger: #ff7675;
+    --success: #00b894;
+    --warning: #fdcb6e;
+    --dark: #2d3436;
+    --light: #f5f6fa;
+    --gradient-blue-purple: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    --gradient-teal-blue: linear-gradient(135deg, #00cec9 0%, #2575fc 100%);
+    --gradient-red-orange: linear-gradient(135deg, #ff4e81 0%, #fdbc4b 100%);
+    --gradient-orange-red: linear-gradient(135deg, #fdbc4b 0%, #ff4e81 100%);
+    --modal-bg-dark: rgba(30, 39, 46, 0.98);
+
+    /* Premium Auth Page Colors */
+    --auth-bg: #16181a;
+    --auth-panel-bg: #1f2328;
+    --auth-left-panel-bg: #1a1d21;
+    --auth-input-bg: #2c3036;
+    --auth-input-border: #3a3f45;
+    --auth-text-primary: #e0e0e0;
+    --auth-text-secondary: #a0a0a0;
+    --auth-accent-main: #ff8c00; /* Original accent, for links etc. */
+    --auth-button-bg-start: #ff9933; /* Brighter orange for button gradient */
+    --auth-button-bg-end: #ff7700;   /* Slightly darker orange for button gradient end */
+    --auth-button-hover-start: #ffaa55;
+    --auth-button-hover-end: #ff8822;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif; color: var(--light); min-height: 100vh;
+    display: flex; justify-content: center; align-items: center;
+    overflow: hidden; position: relative;
+    background: radial-gradient(circle at center, #1b1b1b 0%, #0d0d0d 100%);
+    transition: background 0.5s ease;
+  }
+
+  .liquid-bg {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    opacity: 0; visibility: hidden;
+    transition: opacity 1s ease, visibility 1s ease;
+  }
+  .liquid-bg.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Login page blobs */
+  #loginBg .liquid-blob:nth-child(1) { background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, rgba(100, 50, 0, 0.08) 100%); width: 800px; height: 800px; left: -150px; top: -150px; animation-delay: 0s; animation-duration: 28s; }
+  #loginBg .liquid-blob:nth-child(2) { background: radial-gradient(circle, rgba(100, 100, 100, 0.07) 0%, rgba(50, 50, 50, 0.07) 100%); width: 650px; height: 650px; right: -100px; bottom: -100px; animation-delay: 4s; animation-duration: 22s; }
+  #loginBg .liquid-blob:nth-child(3) { display: none; }
+
+  /* New static background for the dashboard */
+  #dashboardBg.active {
+      background: #1a1d2a; /* Deep, slightly purplish blue */
+      opacity: 1;
+      visibility: visible;
+  }
+
+  /* General .liquid-blob class for login blobs animation */
+  .liquid-blob {
+    position: absolute; border-radius: 50%; filter: blur(100px);
+    opacity: 0.7; mix-blend-mode: screen;
+    animation: float 25s infinite ease-in-out; will-change: transform;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    20% { transform: translate(80px, 120px) rotate(8deg); }
+    40% { transform: translate(-70px, 150px) rotate(-4deg); }
+    60% { transform: translate(100px, -90px) rotate(12deg); }
+    80% { transform: translate(-40px, -120px) rotate(-7deg); }
+  }
+
+  /* --- Premium Auth UI Styles --- */
+  #premiumAuthContainer {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: var(--auth-bg);
+    display: none;
+    justify-content: center; align-items: center;
+    z-index: 100;
+    font-family: 'Poppins', sans-serif;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  }
+  #premiumAuthContainer.visible {
+    display: flex;
+    opacity: 1; visibility: visible;
+  }
+  .premium-auth-box {
+    display: flex;
+    width: 90%; max-width: 920px; /* Slightly wider */
+    min-height: 580px; /* Adjusted min-height */
+    background-color: var(--auth-panel-bg);
+    border-radius: 15px; /* More rounded */
+    box-shadow: 0 25px 70px rgba(0,0,0,0.6); /* Enhanced shadow */
+    border: 1px solid rgba(255, 255, 255, 0.07); /* Subtle border */
+    overflow: hidden;
+    animation: fadeInUpAuth 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes fadeInUpAuth { 0% { opacity: 0; transform: translateY(30px) scale(0.97); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .premium-auth-left-panel {
+    flex: 1.1;
+    background-color: var(--auth-left-panel-bg);
+    padding: 50px 40px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    border-top-left-radius: 15px; border-bottom-left-radius: 15px;
+    text-align: center;
+  }
+  .premium-auth-left-panel img.auth-logo {
+    width: 120px; height: 120px; /* Made larger */
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    border: 3px solid var(--auth-accent-main);
+    box-shadow: 0 0 30px rgba(255, 140, 0, 0.35);
+    animation: floatAuthLogoPremium 6s ease-in-out infinite; /* Slower, more prominent */
+  }
+  @keyframes floatAuthLogoPremium {
+    0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 30px rgba(255, 140, 0, 0.35); }
+    50% { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 40px rgba(255, 140, 0, 0.45); }
+  }
+
+   .premium-auth-left-panel .app-name-title {
+    color: var(--auth-text-primary); font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .premium-auth-left-panel .developer-name {
+    color: var(--auth-text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 35px;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+  }
+  .premium-auth-left-panel h2.features-title {
+    color: var(--auth-text-primary); font-size: 18px; font-weight: 500; margin-bottom: 18px;
+    text-align: left; width: 100%; max-width: 320px;
+  }
+  .premium-auth-left-panel ul.features-list {
+    color: var(--auth-text-secondary); list-style: none; padding-left: 0;
+    width: 100%; max-width: 320px; text-align: left;
+  }
+  .premium-auth-left-panel ul.features-list li {
+    margin-bottom: 12px; display: flex; align-items: center; font-size: 14px;
+  }
+  .premium-auth-left-panel ul.features-list li i {
+    margin-right: 12px; color: var(--auth-accent-main); font-size: 10px;
+  }
+
+  .premium-auth-right-panel {
+    flex: 1; padding: 40px 50px;
+    display: flex; flex-direction: column; justify-content: center;
+    background-color: var(--auth-panel-bg);
+    border-top-right-radius: 15px; border-bottom-right-radius: 15px;
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-form-section {
+    width: calc(100% - 100px); /* Account for padding inside right panel */
+    transition: opacity 0.35s ease-in-out, transform 0.35s ease-in-out;
+    position: absolute;
+    top: 50%;
+    left: 50px;
+    transform: translate(0, -50%);
+  }
+  .auth-form-section.hidden-form {
+    opacity: 0;
+    pointer-events: none;
+  }
+   .auth-form-section.hidden-form.slide-out-left {
+    transform: translate(-30px, -50%); /* Slide slightly left and fade */
+  }
+  .auth-form-section.hidden-form.slide-in-from-right { /* Prepare to slide in from right */
+    transform: translate(30px, -50%);
+    opacity: 0;
+  }
+
+
+  .auth-form-section h1 {
+    color: var(--auth-text-primary); font-size: 28px; font-weight: 600;
+    margin-bottom: 10px; text-align: left;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .auth-form-section .auth-sub-heading {
+    color: var(--auth-text-secondary); font-size: 14px; margin-bottom: 35px; text-align: left;
+  }
+  .auth-form-section label {
+    color: var(--auth-text-secondary); font-size: 13px; font-weight: 500;
+    margin-bottom: 8px; display: block; text-align: left;
+  }
+  .auth-form-section .input-group {
+    position: relative; margin-bottom: 22px;
+  }
+  .auth-form-section input[type="text"],
+  .auth-form-section input[type="password"] {
+    width: 100%; padding: 15px 20px;
+    background-color: var(--auth-input-bg);
+    border: 1px solid var(--auth-input-border);
+    border-radius: 10px; color: var(--auth-text-primary);
+    font-size: 15px; outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+  .auth-form-section input[type="text"]:focus,
+  .auth-form-section input[type="password"]:focus {
+    border-color: var(--auth-accent-main);
+    background-color: #32373d; /* Slightly lighter on focus */
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.15);
+  }
+  .auth-form-section input::placeholder { color: #777e89; }
+
+  .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+  }
+  .remember-me-container {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: var(--auth-text-secondary);
+  }
+  .remember-me-container input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+      accent-color: var(--auth-accent-main);
+      transform: scale(0.9);
+  }
+  .remember-me-container label { margin-bottom: 0; cursor: pointer;}
+
+  .auth-action-button {
+    width: 100%; padding: 15px;
+    background-image: linear-gradient(135deg, var(--auth-button-bg-start) 0%, var(--auth-button-bg-end) 100%);
+    border: none; border-radius: 10px; color: #fff;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+    margin-top: 10px; margin-bottom: 25px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .auth-action-button:hover {
+    background-image: linear-gradient(135deg, var(--auth-button-hover-start) 0%, var(--auth-button-hover-end) 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255,140,0,0.3);
+  }
+  .auth-action-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(255,140,0,0.2);
+  }
+
+  .switch-form-text {
+      text-align: center;
+      font-size: 14px;
+      color: var(--auth-text-secondary);
+  }
+  .switch-form-text .switch-link {
+      color: var(--auth-accent-main);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+  }
+  .switch-form-text .switch-link:hover { text-decoration: underline; }
+
+  @media (max-width: 768px) {
+    .premium-auth-box {
+        flex-direction: column;
+        width: 95%; max-width: 450px;
+        min-height: 0; height: auto; margin: 20px 0;
+    }
+    .premium-auth-left-panel {
+        display: none;
+    }
+    .premium-auth-right-panel {
+        border-radius: 15px;
+        padding: 35px 30px; /* Adjusted mobile padding */
+        min-height: 480px;
+    }
+    .auth-form-section {
+      width: calc(100% - 60px); /* Account for new padding */
+      left: 30px;
+    }
+    .auth-form-section h1 { font-size: 24px; text-align: center; }
+    .auth-form-section .auth-sub-heading { text-align: center; margin-bottom: 25px; }
+  }
+  /* --- End of Premium Auth UI Styles --- */
+
+  /* Auth Status/Error Popups */
+  .auth-popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1050; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+  .auth-popup-overlay.visible { opacity: 1; visibility: visible; }
+  .auth-popup-overlay.position-top {
+      align-items: flex-start;
+      padding-top: 10vh;
+  }
+
+  .auth-popup-content { background: rgba(40, 40, 55, 0.95); padding: 30px 40px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3); text-align: center; color: white; min-width: 300px; max-width: 90%; }
+  .auth-popup-content .spinner { border: 4px solid rgba(255, 255, 255, 0.2); border-left-color: var(--auth-accent-main); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .auth-popup-content p { margin: 0; font-size: 16px; line-height: 1.5; }
+  .auth-popup-content p.subtext { font-size: 14px; color: #ccc; margin-top: 5px; }
+  .auth-popup-content.error-popup h3 { color: var(--danger); margin-top: 0; margin-bottom: 15px; font-size: 20px; }
+  .auth-popup-content.error-popup button {
+    background-color: var(--danger);
+    color: white;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 20px;
+    transition: background-color 0.2s;
+  }
+  .auth-popup-content.error-popup button:hover { background-color: #d32f2f; }
+  .auth-popup-icon { font-size: 30px; margin-bottom: 15px; }
+  .auth-popup-icon.success { color: var(--success); }
+  .auth-popup-icon.error { color: var(--danger); }
+
+   .content-panel { text-align: center; width: 95%; position: relative; overflow: hidden; z-index: 1; animation: fadeInUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; justify-content: center; align-items: center;}
+  @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+  #dashboardPanel { background: rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 20px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid transparent; max-width: 900px; width: 95%; position: relative; display: flex; flex-direction: column; align-items: center; min-height: 500px; transform: scale(0.95); opacity: 0; animation: dashboardEntrance 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+  @keyframes dashboardEntrance { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  #dashboardPanel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 24px; z-index: -1; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 10px rgba(0, 206, 201, 0.5), 0 0 20px rgba(108, 92, 231, 0.3); pointer-events: none; animation: borderPulse 6s infinite alternate; }
+  @keyframes borderPulse { 0% { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 10px rgba(0, 206, 201, 0.5), 0 0 20px rgba(108, 92, 231, 0.3); } 50% { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 15px rgba(0, 206, 201, 0.7), 0 0 30px rgba(108, 92, 231, 0.5); } 100% { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 10px rgba(0, 206, 201, 0.5), 0 0 20px rgba(108, 92, 231, 0.3); } }
+  .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 280px; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; transform: translateX(-100%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 900; box-shadow: 5px 0 30px rgba(0, 0, 0, 0.5); border-right: 1px solid rgba(255, 255, 255, 0.1); overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .sidebar.active { transform: translateX(0); }
+  .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 899; display: none; transition: opacity 0.3s ease; opacity: 0; }
+  .sidebar-overlay.active { display: block; opacity: 1; }
+  .close-sidebar-btn { position: absolute; top: 15px; right: 15px; background: rgba(255, 255, 255, 0.15); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; color: white; font-size: 18px; cursor: pointer; transition: all 0.3s ease; z-index: 100; animation: pulseCloseBtnAnim 2s infinite; }
+  @keyframes pulseCloseBtnAnim { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); } 50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); } }
+  .close-sidebar-btn:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.1); animation: none; }
+  .sidebar-title { font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 20px; padding-top: 20px; text-align: center; position: relative; width: 100%; animation: textGlow 3s ease-in-out infinite alternate; }
+  @keyframes textGlow { 0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.1), 0 0 20px rgba(108, 92, 231, 0.1); } 100% { text-shadow: 0 0 15px rgba(255, 255, 255, 0.2), 0 0 30px rgba(108, 92, 231, 0.3); } }
+  .sidebar-title::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 50px; height: 2px; background: var(--secondary); border-radius: 2px; animation: linePulse 2s infinite ease-in-out; }
+  @keyframes linePulse { 0%, 100% { width: 60px; opacity: 1; } 50% { width: 80px; opacity: 0.8; } }
+  .menu-toggle-btn { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; padding: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 0 10px rgba(106, 17, 203, 0.3); display: flex; justify-content: center; align-items: center; color: var(--light); font-size: 20px; cursor: pointer; transition: all 0.3s ease; z-index: 50; animation: pulseCloseBtnAnim 2s infinite; }
+  .menu-toggle-btn:hover { background: rgba(255, 255, 255, 0.2); box-shadow: 0 0 20px rgba(106, 17, 203, 0.6); transform: scale(1.1); animation: none; }
+  .notification-wrapper-main { position: absolute; top: 20px; z-index: 50; }
+  .notification-wrapper-main .notification-btn { width: 35px; height: 35px; padding: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 0 10px rgba(106, 17, 203, 0.3); animation: pulseCloseBtnAnim 2s infinite; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer; transition: all 0.3s ease; }
+  .notification-wrapper-main .notification-btn i { font-size: 18px; color: var(--warning); }
+  .notification-wrapper-main .notification-btn:hover { background: rgba(255, 255, 255, 0.2); box-shadow: 0 0 20px rgba(106, 17, 203, 0.6); transform: scale(1.1); animation: none; }
+  .notification-wrapper-main .notification-btn span { position: absolute; top: 0px; right: 0px; background: var(--danger); color: white; font-size: 10px; font-weight: 600; border-radius: 50%; padding: 2px 5px; min-width: 18px; height: 18px; display: flex; justify-content: center; align-items: center; box-shadow: 0 0 5px rgba(255, 118, 117, 0.7); animation: notificationPulse 1.5s infinite; }
+  @keyframes notificationPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+  .main-dashboard-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%; height: 100%;
+    padding-top: 70px;
+    animation: fadeIn 0.8s ease-out;
+    overflow-y: auto;
+    max-height: calc(100vh - 100px);
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .main-dashboard-content::-webkit-scrollbar { display: none; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .dashboard-header { display: flex; align-items: center; justify-content: flex-start; width: 100%; margin-bottom: 20px; transition: all 0.3s ease; padding: 0 20px; }
+  .dashboard-header:hover { transform: translateX(5px); }
+  .profile-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 15px rgba(0, 206, 201, 0.5); border: 2px solid var(--secondary); transition: all 0.3s ease; animation: floatDashboardProfile 4s ease-in-out infinite; margin-right: 20px; }
+  @keyframes floatDashboardProfile { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
+  .killerx-title { font-size: 28px; font-weight: 700; color: transparent; background: var(--gradient-teal-blue); -webkit-background-clip: text; background-clip: text; text-align: left; line-height: 1.1; text-shadow: 0 0 10px rgba(0, 206, 201, 0.4); flex-grow: 1; transition: all 0.3s ease; }
+  .killerx-title:hover { transform: translateX(5px); text-shadow: 0 0 15px rgba(0, 206, 201, 0.6); }
+  .killerx-title span { display: block; font-size: 18px; font-weight: 500; color: rgba(255, 255, 255, 0.8); -webkit-background-clip: unset; background-clip: unset; text-shadow: none; }
+
+  .user-id-display {
+    font-size: 18px; color: #fff; font-weight: 600;
+    margin-bottom: 20px; 
+    width: calc(100% - 40px);
+    margin-left: auto; margin-right: auto;
+    text-align: center; transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 10px; background: rgba(255,255,255,0.03);
+  }
+  .user-id-display:hover { background: rgba(255, 255, 255, 0.05); transform: scale(1.02); }
+  .user-id-display span#dashboardUserIdValue { color: var(--secondary); font-weight: 700; transition: all 0.3s ease; }
+  .user-id-display:hover span#dashboardUserIdValue { text-shadow: 0 0 10px rgba(0, 206, 201, 0.5); }
+  /* Styles for multiple batch display removed as status field is removed */
+  .user-id-display span#dashboardUserBatchStatus {
+      display: none; /* Hidden as status field is removed */
+  }
+
+  .hardware-id-section { display: flex; flex-direction: column; align-items: center; width: calc(100% - 40px); margin-left: auto; margin-right: auto; margin-bottom: 8px; transition: all 0.3s ease; }
+  .hardware-id-section:hover { transform: translateY(-3px); }
+  .hardware-id-label { font-size: 16px; font-weight: 500; color: rgba(255, 255, 255, 0.7); margin-bottom: 2px; white-space: nowrap; text-align: center; transition: all 0.3s ease; }
+  .hardware-id-value { font-size: 18px; font-weight: 600; color: #fff; font-family: monospace; letter-spacing: 1px; text-align: center; overflow-wrap: break-word; padding: 10px 15px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); transition: all 0.3s ease; width: 100%; }
+  .hardware-id-value:hover { background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 15px rgba(0, 206, 201, 0.2); }
+  .balance-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+    align-self: center;
+    transition: all 0.3s ease;
+  }
+  .balance-container:hover {
+    transform: translateY(-5px);
+  }
+  .points {
+    font-size: 64px;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    background: var(--gradient-teal-blue);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 4px 10px rgba(0, 206, 201, 0.3);
+    position: relative;
+    animation: balancePointsPulse 2s infinite;
+  }
+  @keyframes balancePointsPulse { 0%, 100% { transform: scale(1); text-shadow: 0 4px 10px rgba(0, 206, 201, 0.3); }  50% { transform: scale(1.05); text-shadow: 0 6px 15px rgba(0, 206, 201, 0.5); }  }
+  .balance-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 1px;
+    margin-top: 0;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+  .balance-label:hover {
+    color: var(--secondary);
+  }
+  .expires-text { 
+    display: none; 
+  }
+
+
+  .premium-dashboard-button { width: 100%; padding: 16px; border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; overflow: hidden; z-index: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 0 10px rgba(0, 206, 201, 0.3), 0 0 20px rgba(108, 92, 231, 0.2); transform: perspective(500px) translateZ(0); }
+  .sidebar .premium-dashboard-button:not(.logout-btn) { background: var(--gradient-red-orange); box-shadow: 0 4px 15px rgba(255, 78, 129, 0.3); border: none; animation: buttonPulseSidebar 2s infinite ease-in-out; }
+  @keyframes buttonPulseSidebar { 0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 78, 129, 0.3); } 50% { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 78, 129, 0.5); } }
+  .sidebar .premium-dashboard-button:not(.logout-btn):hover { background: var(--gradient-orange-red); box-shadow: 0 8px 25px rgba(255, 78, 129, 0.5); transform: translateY(-3px) perspective(500px) translateZ(20px); animation: none; }
+  .sidebar .premium-dashboard-button:not(.logout-btn) i { color: white !important; }
+  .sidebar .edit-profile-btn i { color: var(--warning) !important; }
+  .sidebar .download-panel-btn { display: none !important; } /* Hiding this button */
+  .sidebar .product-history-btn i { color: #f7d794 !important; } /* Light gold for product history */
+  .sidebar .package-renew-sidebar-btn i {color: white !important;} /* Ensure icon color for new button */
+
+
+  #paymentOptionsModal .premium-dashboard-button { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: none; justify-content: flex-start; padding-left: 20px; }
+  #paymentOptionsModal .premium-dashboard-button:hover { background: rgba(255, 255, 255, 0.2); box-shadow: 0 6px 20px rgba(0,0,0,0.3); transform: translateY(-2px) perspective(500px) translateZ(15px); }
+  #paymentOptionsModal .premium-dashboard-button img {
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .premium-dashboard-button:last-of-type { margin-bottom: 0; }
+  .premium-dashboard-button::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 100%); transform: translateX(-100%); transition: transform 0.6s ease; z-index: -1; }
+  .premium-dashboard-button:hover::before { transform: translateX(100%); }
+  .premium-dashboard-button:hover { transform: translateY(-3px) perspective(500px) translateZ(20px); box-shadow: 0 0 15px rgba(0, 206, 201, 0.6), 0 0 30px rgba(108, 92, 231, 0.4); background: rgba(255, 255, 255, 0.1); }
+  .premium-dashboard-button:active { transform: translateY(-1px) perspective(500px) translateZ(10px); box-shadow: 0 0 8px rgba(0, 206, 201, 0.3), 0 0 15px rgba(108, 92, 231, 0.2); }
+  .premium-dashboard-button i { color: var(--secondary); transition: all 0.3s ease; }
+  .premium-dashboard-button:hover i { transform: scale(1.2); }
+  .add-money i { color: var(--secondary); } .hwid-reset-btn i { color: var(--primary); } .download-tools-btn i { color: var(--secondary); } .logout-btn i { color: var(--danger); } .history-btn i { color: white !important; }
+  .redeem-section-wrapper { width: calc(100% - 40px); max-width: 600px; margin: 20px auto; padding: 20px; background-color: rgba(0,0,0,0.15); border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); }
+  .redeem-section-wrapper h3 { font-size: 18px; color: var(--light); margin-bottom: 8px; text-align: left; font-weight: 600; }
+  .redeem-section-wrapper p { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 20px; text-align: left; line-height: 1.5; }
+  .redeem-input-container { display: flex; align-items: center; border: 1px solid var(--auth-accent-main); border-radius: 8px; background-color: rgba(0,0,0,0.2); padding-left: 15px; overflow: hidden; }
+  .redeem-input-container i.fa-gift { color: var(--auth-accent-main); margin-right: 12px; font-size: 18px; }
+  #redeemCodeInput { flex-grow: 1; padding: 14px 10px; border: none; background: transparent; color: white; font-size: 15px; outline: none; }
+  #redeemCodeInput::placeholder { color: rgba(255,255,255,0.5); }
+  .redeem-input-container button { padding: 14px 25px; background-color: var(--auth-accent-main); color: white; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: background-color 0.3s ease; letter-spacing: 0.5px; }
+  .redeem-input-container button:hover { background-color: var(--auth-button-hover-end); } /* Using existing var */
+  
+  /* User Info Details Panel (modified) */
+  .user-info-details-panel {
+    width: calc(100% - 40px);
+    max-width: 600px; 
+    margin: 25px auto; 
+    padding: 20px;
+    background-color: rgba(0,0,0,0.25); 
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--light);
+    font-size: 14px;
+  }
+  .user-info-details-panel .info-header {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--light);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .user-info-details-panel p {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 12px; 
+    line-height: 1.6;
+  }
+  .user-info-details-panel p .label-title { 
+    display: flex; 
+    align-items: center;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+  }
+  .user-info-details-panel p .label-title i { 
+    color: var(--warning); 
+    margin-right: 12px;
+    width: 20px; 
+    text-align: center;
+    flex-shrink: 0; 
+  }
+  .user-info-details-panel p .label-title i.fa-desktop, 
+  .user-info-details-panel p .label-title i.fa-mobile-alt { 
+    color: var(--secondary); 
+  }
+  .user-info-details-panel p .label-title i.fa-calendar-alt { 
+      color: var(--primary); 
+   }
+  .user-info-details-panel p .value-text {
+    color: var(--light);
+    word-break: break-all;
+    text-align: right; 
+    margin-left: 10px; 
+    font-weight: 500;
+  }
+ .user-info-details-panel .free-hwid-reset-display {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--success);
+    background-color: rgba(0, 184, 148, 0.1);
+    padding: 3px 8px;
+    border-radius: 5px;
+  }
+  /* End User Info Details Panel Styles */
+
+  /* New Active Product Status Display Panel Styles */
+  .active-product-display-panel { 
+    width: 100%; 
+    padding: 25px;
+    background-color: var(--auth-panel-bg); 
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    color: var(--light);
+    font-family: 'Poppins', sans-serif;
+    border: 1px solid rgba(255, 140, 0, 0.2); 
+    position: relative; /* For lifetime badge positioning */
+  }
+  .active-product-display-panel.lifetime-product-card {
+      border: 2px solid var(--warning);
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.1));
+      box-shadow: 0 10px 40px rgba(255, 193, 7, 0.3);
+      padding-top: 40px; /* Make space for badge */
+  }
+  .lifetime-badge {
+      background-color: var(--warning);
+      color: var(--dark);
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 10px 0 10px 0;
+      position: absolute;
+      top: 0px; 
+      left: 0px;
+      text-transform: uppercase;
+      z-index: 1;
+  }
+
+  .active-product-display-panel .active-product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px; 
+    font-size: 16px; 
+  }
+  .active-product-display-panel .active-product-item .label {
+    font-weight: 700; 
+    color: var(--light);
+    margin-right: 10px;
+  }
+  .active-product-display-panel .active-product-item .value {
+    font-weight: 500; 
+    color: var(--light); 
+    text-align: right;
+    word-break: break-all;
+  }
+  .active-product-display-panel .download-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px; 
+  }
+  .active-product-display-panel .download-now-text {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--light);
+  }
+  .active-product-display-panel .download-now-text i { 
+    margin-left: 8px;
+    font-size: 16px;
+  }
+  .active-product-display-panel .active-product-download-btn { 
+    background-color: var(--auth-accent-main); 
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+  }
+  .active-product-display-panel .active-product-download-btn:hover {
+    background-color: var(--auth-button-hover-end); 
+    transform: translateY(-2px);
+  }
+  /* End New Active Product Status Display Panel Styles */
+
+  /* Product History Modal Items */
+  .product-history-item {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    text-align: left;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .product-history-item p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: var(--light);
+  }
+  .product-history-item .history-label {
+    font-weight: 600;
+    color: var(--secondary);
+  }
+  .product-history-item .history-value {
+    color: var(--light);
+    word-break: break-all;
+  }
+
+
+  .overview-card-standalone { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: calc(100% - 40px); margin-left: 20px; margin-right: 20px; margin-top: 25px; margin-bottom: 25px; align-self: center; transition: all 0.3s ease; transform: perspective(1000px) rotateX(0deg); }
+  .overview-card-standalone:hover { transform: perspective(1000px) rotateX(5deg); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); background: rgba(255, 255, 255, 0.08); }
+  .overview-card-standalone .card-title { font-size: 18px; font-weight: 600; background: var(--gradient-blue-purple); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 10px; transition: all 0.3s ease; }
+  .overview-card-standalone:hover .card-title { text-shadow: 0 0 15px rgba(106, 17, 203, 0.5); }
+  .overview-card-standalone .card-text { font-size: 14px; color: rgba(255, 255, 255, 0.7); margin-bottom: 10px; line-height: 1.5; transition: all 0.3s ease; }
+  .overview-card-standalone:hover .card-text { color: rgba(255, 255, 255, 0.9); }
+  .overview-card-standalone .contact-info { font-size: 14px; color: rgba(255, 255, 255, 0.8); display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+  .overview-card-standalone .contact-info a { color: var(--secondary); text-decoration: none; font-weight: 500; transition: all 0.3s ease; }
+  .overview-card-standalone .contact-info a:hover { color: var(--primary); text-shadow: 0 0 10px rgba(0, 206, 201, 0.5); }
+  .overview-card-standalone .contact-info i { color: var(--warning); margin-right: 8px; font-size: 16px; transition: all 0.3s ease; }
+  .overview-card-standalone:hover .contact-info i { transform: scale(1.2); }
+  .overview-card-standalone .contact-info span { display: flex; align-items: center; transition: all 0.3s ease; }
+  .overview-card-standalone:hover .contact-info span { transform: translateX(5px); }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; animation: fadeInModalBg 0.3s ease; backdrop-filter: blur(5px); }
+  .modal-bg.position-top { align-items: flex-start; padding-top: 10vh; }
+  @keyframes fadeInModalBg { from { opacity: 0; } to { opacity: 1; } }
+  .modal { background: var(--modal-bg-dark); border-radius: 24px; padding: 30px; width: 95%; max-width: 400px; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5); text-align: center; color: var(--light); animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255, 255, 255, 0.1); position: relative; overflow: hidden; transform: perspective(1000px) rotateX(0deg); transition: all 0.3s ease; }
+  @keyframes slideUp { from { transform: translateY(20px) perspective(1000px) rotateX(10deg); opacity: 0; } to { transform: translateY(0) perspective(1000px) rotateX(0deg); opacity: 1; } }
+  .modal:hover { transform: perspective(1000px) rotateX(5deg); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); }
+  .modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--gradient-blue-purple); animation: borderFlow 3s linear infinite; background-size: 200% 100%; }
+  @keyframes borderFlow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+  .modal .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+  .modal .close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+  }
+
+  #customAmountInput { width: 100%; padding: 16px 20px; margin: 20px 0; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; font-size: 16px; outline: none; background: rgba(255, 255, 255, 0.1); color: white; text-align: center; transition: all 0.3s ease; }
+  #customAmountInput::placeholder { color: rgba(255, 255, 255, 0.5); }
+  #customAmountInput:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3); }
+  #customAmountInput::-webkit-outer-spin-button, #customAmountInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #customAmountInput[type=number] { -moz-appearance: textfield; }
+  .confirm-btn { width: 100%; padding: 18px 20px; border-radius: 15px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 25px; background: var(--gradient-blue-purple); box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4); transform: perspective(500px) translateZ(0); position: relative; overflow: hidden; color: white; border: none; }
+  .confirm-btn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%); transform: translateX(-100%); transition: transform 0.6s ease; }
+  .confirm-btn:hover:not(:disabled) { background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%); transform: translateY(-3px) perspective(500px) translateZ(20px); box-shadow: 0 8px 25px rgba(106, 17, 203, 0.6); }
+  .confirm-btn:hover:not(:disabled)::before { transform: translateX(100%); }
+  .confirm-btn:disabled { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.4); cursor: not-allowed; box-shadow: none; transform: none; opacity: 0.7; }
+
+  .confirm-btn.bkash-style {
+      background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+      box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+  }
+  .confirm-btn.bkash-style:hover:not(:disabled) {
+      background: linear-gradient(135deg, #c2185b 0%, #e91e63 100%);
+      box-shadow: 0 8px 25px rgba(233, 30, 99, 0.6);
+  }
+   .confirm-btn.bkash-style::before {
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%);
+  }
+
+  .confirm-btn.nagad-style {
+      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+      box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+  }
+  .confirm-btn.nagad-style:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+      box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
+  }
+  .confirm-btn.nagad-style::before {
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%);
+  }
+
+
+  .modal .confirm-hwid-btn { background: var(--primary); border-radius: 12px; padding: 16px 20px; font-size: 16px; font-weight: 600; color: #fff; margin-top: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: all 0.3s ease; transform: perspective(500px) translateZ(0); position: relative; overflow: hidden; border: none; }
+  .modal .confirm-hwid-btn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%); transform: translateX(-100%); transition: transform 0.6s ease; }
+  .modal .confirm-hwid-btn:hover { background: var(--primary-dark); transform: translateY(-2px) perspective(500px) translateZ(20px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+  .modal .confirm-hwid-btn:hover::before { transform: translateX(100%); }
+  .modal .confirm-hwid-btn:active { transform: translateY(0) perspective(500px) translateZ(10px); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); }
+  .transaction-item { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 15px 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; transform: perspective(500px) translateZ(0); }
+  .transaction-item:last-child { margin-bottom: 0; }
+  .transaction-item:hover { transform: translateY(-3px) perspective(500px) translateZ(20px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+  .transaction-item.status-pending_verification, .transaction-item.status-pending { background-color: var(--warning); box-shadow: 0 4px 15px rgba(253, 203, 110, 0.4); color: var(--dark); }
+  .transaction-item.status-pending_verification:hover, .transaction-item.status-pending:hover { background-color: #ffb53a; transform: translateY(-3px) perspective(500px) translateZ(20px); box-shadow: 0 6px 20px rgba(253, 203, 110, 0.6); }
+  .transaction-item.status-pending_verification .transaction-icon i, .transaction-item.status-pending_verification .transaction-amount, .transaction-item.status-pending_verification .transaction-status, .transaction-item.status-pending_verification .transaction-date, .transaction-item.status-pending_verification .transaction-right i, .transaction-item.status-pending .transaction-icon i, .transaction-item.status-pending .transaction-amount, .transaction-item.status-pending .transaction-status, .transaction-item.status-pending .transaction-date, .transaction-item.status-pending .transaction-right i { color: var(--dark); }
+  .transaction-item.status-pending_verification .transaction-date, .transaction-item.status-pending .transaction-date { color: rgba(45, 52, 54, 0.7); }
+  .transaction-item.status-completed { background-color: rgba(255, 255, 255, 0.05); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+  .transaction-item.status-completed:hover { background-color: rgba(255, 255, 255, 0.1); transform: translateY(-3px) perspective(500px) translateZ(20px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+  .transaction-item.status-completed .transaction-icon i, .transaction-item.status-completed .transaction-amount, .transaction-item.status-completed .transaction-status, .transaction-item.status-completed .transaction-date, .transaction-item.status-completed .transaction-right i { color: var(--light); }
+  .transaction-item.status-completed .transaction-date { color: rgba(255, 255, 255, 0.7); }
+  .transaction-left { display: flex; align-items: center; gap: 15px; text-align: left; }
+  .transaction-icon i { font-size: 28px; transition: all 0.3s ease; }
+  .transaction-item:hover .transaction-icon i { transform: scale(1.2); }
+  .transaction-info { display: flex; flex-direction: column; }
+  .transaction-amount-status { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; }
+  .transaction-amount { font-size: 18px; font-weight: 600; transition: all 0.3s ease; }
+  .transaction-item:hover .transaction-amount { text-shadow: 0 0 10px rgba(0, 0, 0, 0.2); }
+  .transaction-status { font-size: 14px; font-weight: 400; text-transform: capitalize; transition: all 0.3s ease; }
+  .transaction-item:hover .transaction-status { transform: translateX(5px); }
+  .transaction-date { font-size: 12px; transition: all 0.3s ease; }
+  .transaction-item:hover .transaction-date { transform: translateX(5px); }
+  .transaction-right i { font-size: 16px; opacity: 0.5; pointer-events: none; transition: all 0.3s ease; }
+  .transaction-item:hover .transaction-right i { opacity: 1; transform: translateX(5px); }
+  .empty-history { text-align: center; padding: 40px 20px; color: rgba(255, 255, 255, 0.6); }
+  .empty-history i { font-size: 60px !important; margin-bottom: 20px !important; opacity: 0.7 !important; color: rgba(255, 255, 255, 0.4); animation: spin 2s linear infinite; }
+  .empty-history p { font-size: 16px; transition: all 0.3s ease; }
+  .empty-history:hover p { color: rgba(255, 255, 255, 0.8); transform: scale(1.05); }
+  .bonus-message { color: var(--secondary); font-size: 14px; margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 8px; animation: textGlowBonusMessage 3s infinite alternate; }
+  @keyframes textGlowBonusMessage { 0% { opacity: 0.7; } 100% { opacity: 1; } }
+  .bonus-message i { font-size: 16px; animation: bounce 2s infinite ease-in-out; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  .tools-list { display: flex; flex-direction: column; gap: 10px; }
+  .tools-list button { width: 100%; padding: 14px 20px; border: none; border-radius: 12px; background: rgba(255, 255, 255, 0.1); color: var(--light); font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); transform: perspective(500px) translateZ(0); }
+  .tools-list button:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-3px) perspective(500px) translateZ(20px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
+  .tools-list button i { font-size: 18px; color: var(--secondary); transition: all 0.3s ease; }
+  .tools-list button:hover i { transform: scale(1.2); }
+  .modal p { margin: 15px 0; font-size: 15px; transition: all 0.3s ease; }
+  .modal:hover p { transform: translateX(5px); }
+  .modal .message-top { margin-top: 0; margin-bottom: 20px; }
+  .package-item { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 15px 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); transform: perspective(500px) translateZ(0); }
+  .package-item:last-child { margin-bottom: 0; }
+  .package-item:hover { transform: translateY(-5px) perspective(500px) translateZ(20px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); background: rgba(255, 255, 255, 0.1); }
+  .package-item .package-info { text-align: left; }
+  .package-item .package-title { font-size: 18px; font-weight: 600; color: var(--light); margin-bottom: 5px; transition: all 0.3s ease; }
+  .package-item:hover .package-title { color: var(--secondary); }
+  .package-item .package-duration { font-size: 14px; color: rgba(255, 255, 255, 0.7); transition: all 0.3s ease; }
+  .package-item:hover .package-duration { color: rgba(255, 255, 255, 0.9); }
+  .package-item .package-price { font-size: 20px; font-weight: 700; color: var(--warning); transition: all 0.3s ease; }
+  .package-item:hover .package-price { transform: scale(1.1); text-shadow: 0 0 10px rgba(253, 203, 110, 0.5); }
+  #purchaseSuccessModal #generatedRedeemCode { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 15px; font-family: monospace; letter-spacing: 1px; margin-top: 10px; transition: all 0.3s ease; animation: codeGlow 2s infinite alternate; }
+  @keyframes codeGlow { 0% { box-shadow: 0 0 5px rgba(0, 206, 201, 0.3); } 100% { box-shadow: 0 0 15px rgba(0, 206, 201, 0.7); } }
+  #purchaseSuccessModal button.confirm-btn { margin-top: 15px; }
+
+  .modal-copy-button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+    margin-top: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .modal-copy-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .inline-copy-button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    vertical-align: middle;
+  }
+  .inline-copy-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+  .inline-copy-button:disabled {
+    background: var(--success) !important; /* Or another feedback color */
+    cursor: default;
+  }
+
+
+  .mark-all-read-button {
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .mark-all-read-button:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+  }
+
+  .bonus-system-container { display: flex; gap: 20px; width: calc(100% - 40px); margin-left: 20px; margin-right: 20px; margin-top: 30px; margin-bottom: 30px; padding: 20px; background: rgba(0, 0, 0, 0.2); border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); flex-wrap: wrap; }
+  .bonus-add-balance-section { flex: 1.5; background: var(--dark); padding: 20px; border-radius: 10px; color: var(--light); min-width: 300px; }
+  .bonus-accumulated-section { flex: 1; background: var(--dark); padding: 20px; border-radius: 10px; text-align: center; color: var(--light); display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 280px; }
+  .bonus-add-balance-section h2, .bonus-accumulated-section h2 { font-size: 20px; margin-bottom: 20px; font-weight: 500; color: #dfe6e9; text-align: center; }
+  .bonus-progress-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; align-items: flex-start; position: relative; margin-bottom: 25px; padding: 10px 0; }
+  .bonus-progress-bar::before { content: ''; position: absolute; top: calc(10px + 30px / 2 - 3px / 2); left: 5%; right: 5%; height: 3px; background-color: #636e72; z-index: 1; }
+  .milestone-item { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; z-index: 2; background: var(--dark); width: 100%; }
+  .milestone-marker { max-width: 100px; min-width: 60px; width: 100%; box-sizing: border-box; height: 30px; border-radius: 15px; background-color: #495357; color: #b2bec3; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 8px; border: 2px solid #636e72; transition: all 0.3s ease; padding-left: 5px; padding-right: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .milestone-marker i { margin-right: 5px; font-size: 12px; }
+  .milestone-item.unlocked .milestone-marker { background-color: #e17055; color: white; border-color: #d63031; }
+  .milestone-bonus-text { font-size: 12px; color: #b2bec3; word-break: keep-all; }
+  .milestone-item.unlocked .milestone-bonus-text { color: #e17055; font-weight: 500; }
+  .bonus-summary { display: flex; justify-content: space-around; margin-top: 20px; background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; flex-wrap: wrap; }
+  .summary-item { display: flex; flex-direction: column; align-items: center; padding: 5px 10px; text-align: center; }
+  .summary-item span { font-size: 13px; color: #b2bec3; margin-bottom: 5px; }
+  .summary-item strong { font-size: 16px; font-weight: 600; color: white; }
+  .summary-item.recent-bonus-item strong { background-color: #e17055; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; }
+  .bonus-chest-img { font-size: 70px; color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.7); animation: glowCoin 2s infinite alternate ease-in-out; margin-bottom: 15px; }
+  @keyframes glowCoin { 0% { text-shadow: 0 0 5px rgba(241, 196, 15, 0.3); } 100% { text-shadow: 0 0 15px rgba(241, 196, 15, 1); } }
+  .bonus-accumulated-section p { font-size: 13px; color: #b2bec3; margin-bottom: 20px; line-height: 1.5; max-width: 90%; }
+  .accumulated-bonus-value-wrapper { display: flex; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #636e72; min-width: 150px; }
+  .accumulated-bonus-value-wrapper i { color: #fdcb6e; font-size: 20px; margin-right: 10px; }
+  #accumulatedBonusDisplay { font-size: 22px; font-weight: 700; color: white; }
+  .claim-bonus-btn { background: linear-gradient(135deg, #e17055 0%, #d63031 100%); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; width: 100%; max-width: 250px; }
+  .claim-bonus-btn:hover { background: linear-gradient(135deg, #d63031 0%, #e17055 100%); box-shadow: 0 5px 15px rgba(225, 112, 85, 0.4); }
+  .claim-bonus-btn:disabled { background: #636e72; cursor: not-allowed; opacity: 0.7; }
+  #paymentGatewayInstructions p { margin-bottom: 8px; }
+  #paymentGatewayInstructions hr { border-color: rgba(255,255,255,0.2); margin: 10px 0; }
+  #paymentGatewayInstructions strong { color: var(--warning); }
+
+  /* Styles for the new General Store */
+  .general-store-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 0 10px;
+    flex-wrap: wrap;
+  }
+  .general-store-controls select,
+  .general-store-controls input[type="search"] {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 14px;
+    outline: none;
+  }
+  .general-store-controls select {
+    flex-grow: 1;
+    min-width: 150px;
+  }
+  .general-store-controls input[type="search"] {
+    flex-grow: 2;
+    min-width: 200px;
+  }
+  .general-store-controls input[type="search"]::placeholder {
+    color: rgba(255,255,255,0.5);
+  }
+
+
+  .general-store-product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Responsive grid */
+    gap: 20px;
+    padding: 10px;
+  }
+
+  .general-store-product-item {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  }
+  .general-store-product-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  }
+  .general-store-product-item img {
+    width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background-color: rgba(0,0,0,0.1);
+  }
+  .general-store-product-item .product-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--light);
+    margin-bottom: 5px;
+    min-height: 40px;
+  }
+  .general-store-product-item .product-description {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 10px;
+    flex-grow: 1;
+    min-height: 30px;
+  }
+  .general-store-product-item .product-validity { /* New style for validity */
+    font-size: 11px;
+    color: var(--secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .general-store-product-item .product-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--warning);
+    margin-bottom: 15px;
+  }
+  .general-store-product-item .buy-item-button {
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .general-store-product-item .buy-item-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  .general-store-product-item .buy-item-button:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+  #generalStoreItemConfirmImage img {
+      max-width: 100px;
+      max-height: 100px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin: 0 auto 15px auto;
+      display: block;
+  }
+   .general-store-item-purchase-confirmation-modal .confirm-message { /* Target specifically */
+      margin-bottom: 10px;
+   }
+   .general-store-item-purchase-confirmation-modal .additional-message {
+       font-size: 13px;
+       color: var(--warning);
+       margin-top: 0px;
+       margin-bottom: 15px;
+   }
+
+
+  /* Edit Profile Modal Styles */
+  #editProfileModal .modal-form-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  #editProfileModal label {
+    display: block;
+    color: var(--auth-text-secondary);
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  #editProfileModal input[type="text"],
+  #editProfileModal input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--auth-input-bg);
+    border: 1px solid var(--auth-input-border);
+    border-radius: 8px;
+    color: var(--auth-text-primary);
+    font-size: 15px;
+    outline: none;
+  }
+   #editProfileModal input[type="text"]:read-only {
+      background-color: rgba(255,255,255,0.05);
+      cursor: not-allowed;
+   }
+  #editProfileModal .fee-message {
+      font-size: 13px;
+      color: var(--warning);
+      margin-bottom: 15px;
+  }
+  #editProfileModal #deleteAccountBtn {
+      background: var(--danger);
+      margin-top: 10px;
+      margin-bottom: 20px;
+      padding: 12px 20px;
+      font-size: 15px;
+  }
+   #editProfileModal #deleteAccountBtn:hover {
+      background: #c0392b;
+   }
+
+
+  .auto-removal-notice {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 15px;
+    padding: 8px;
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 5px;
+    text-align: center;
+  }
+  /* Notification Message Styling */
+  .notification-message-details {
+      margin-top: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+      background-color: rgba(0,0,0,0.1);
+      padding: 8px;
+      border-radius: 5px;
+  }
+  .notification-message-details p { margin: 3px 0; }
+  .notification-message-details strong { color: var(--warning); }
+
+
+  @media (max-width: 992px) { .bonus-system-container { flex-direction: column; } .bonus-add-balance-section, .bonus-accumulated-section { flex: none; width: 100%; } .bonus-progress-bar { gap: 10px; } .bonus-progress-bar::before { display: none; } .milestone-item { margin-bottom: 20px; } .bonus-summary { flex-direction: column; gap: 12px; align-items: center; } .bonus-summary .summary-item { width: auto; min-width: 180px; max-width: 85%; background-color: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 8px; } }
+  @media (max-width: 768px) { #dashboardPanel { flex-direction: column; align-items: center; padding: 20px; max-width: 100%; min-height: unset; border-radius: 0; } .main-dashboard-content { max-height: calc(100vh - 80px); padding-top: 60px; } .sidebar { width: 100%; height: 100%; border-radius: 0; border-right: none; padding-top: 20px; } .close-sidebar-btn { top: 15px; right: 15px; } .main-dashboard-content { width: 100%; padding: 0; padding-top: 70px; } .menu-toggle-btn { top: 15px; left: 15px; } .notification-wrapper-main { top: 15px; } .notification-wrapper-main .notification-btn { width: 30px; height: 30px; } .notification-wrapper-main .notification-btn i { font-size: 16px; } .notification-wrapper-main .notification-btn span { top: -2px; right: -2px; min-width: 16px; height: 16px; font-size: 9px; } .dashboard-header { flex-direction: column; align-items: center; margin-bottom: 10px; padding: 0 15px;} .profile-img { width: 60px; height: 60px; margin-right: 0; margin-bottom: 10px; } .killerx-title { font-size: 24px; margin-left: 0; text-align: center; } .killerx-title span { font-size: 16px; } .user-id-display, .hardware-id-section, .redeem-section-wrapper, .overview-card-standalone, .bonus-system-container, .user-info-details-panel, #activeProductDisplayPanelContainer .active-product-display-panel { width: calc(100% - 30px); margin-left: 15px; margin-right: 15px; } .balance-container { margin-top: 20px; } .points { font-size: 48px; } .liquid-blob { filter: blur(60px); } #loginBg .liquid-blob:nth-child(1), #dashboardBg .liquid-blob:nth-child(1) { width: 600px; height: 600px; } #loginBg .liquid-blob:nth-child(2), #dashboardBg .liquid-blob:nth-child(2) { width: 500px; height: 500px; } #customAmountInput { padding: 14px 15px; font-size: 15px; } .transaction-item { padding: 12px 15px; } .transaction-left { gap: 10px; } .transaction-icon i { font-size: 24px; } .transaction-amount { font-size: 16px; } .transaction-status { font-size: 12px; } .transaction-date { font-size: 10px; } #packageRenewModal .modal, #generalStoreModal .modal, #downloadPanelModal .modal, #productHistoryModal .modal { max-width: 95%; width: auto; padding: 20px; } #packageDetailModal .modal, #renewConfirmationModal .modal, #purchaseSuccessModal .modal, #generalStoreItemPurchaseConfirmationModal .modal, #editProfileModal .modal { max-width: 350px; padding: 25px; } .buy-button { padding: 12px 20px !important; font-size: 16px !important; } .general-store-controls { flex-direction: column; } }
+  @media (max-width: 480px) { .balance-container { margin-bottom: 15px;} .points { font-size: 42px; margin-bottom: 2px;} .balance-label { font-size: 12px; margin-bottom: 6px;} .expires-text { font-size: 14px;} .bonus-add-balance-section h2, .bonus-accumulated-section h2 { font-size: 18px; margin-bottom: 15px; } .bonus-progress-bar { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; } .milestone-item { margin-bottom: 15px; } .milestone-marker { font-size: 12px; min-width: 50px; height: 28px; } .milestone-bonus-text { font-size: 11px; } .bonus-summary .summary-item { min-width: 0; width: 90%; padding: 8px 12px; } .bonus-summary .summary-item span { font-size: 12px; } .bonus-summary .summary-item strong { font-size: 15px; } .bonus-summary .summary-item.recent-bonus-item strong { font-size: 13px; padding: 4px 12px; } .bonus-accumulated-section p { font-size: 12px; } .accumulated-bonus-value-wrapper i { font-size: 18px; } #accumulatedBonusDisplay { font-size: 20px; } .claim-bonus-btn { font-size: 15px; padding: 10px 25px; } .redeem-section-wrapper { max-width: calc(100% - 30px) !important; padding: 15px !important;} .redeem-input-container { flex-direction: column; padding-left: 0 !important; border-color: transparent !important; background-color: transparent !important; } .redeem-input-container i.fa-gift { display: none; } #redeemCodeInput { width: 100%; text-align: center; margin-bottom: 10px; background-color: var(--auth-input-bg, #2c3036) !important; border: 1px solid var(--auth-accent-main) !important; border-radius: 6px !important; padding: 12px 10px !important; } #redeemCodeInput::placeholder { text-align: center; } .redeem-input-container button { width: 100%; border-radius: 6px !important; } .general-store-product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; } .general-store-product-item { padding: 10px;} .general-store-product-item .product-title { font-size: 14px; min-height: 30px;} .general-store-product-item .product-description {font-size: 11px;} .general-store-product-item .product-price { font-size: 16px; } .user-info-details-panel p .label-title { min-width: 100px; font-size: 13px;} .user-info-details-panel p .value-text { font-size: 13px;} .user-info-details-panel .info-header { font-size: 16px;} .active-product-display-panel { padding: 15px; } .active-product-display-panel .active-product-item { font-size: 14px; margin-bottom: 10px;} .active-product-display-panel .download-now-text { font-size: 16px; } .active-product-display-panel .active-product-download-btn { font-size: 14px; padding: 8px 20px; } .product-history-item p {font-size: 13px;} }
+
+</style>
+</head>
+<body>
+  <!-- Backgrounds -->
+  <div id="loginBg" class="liquid-bg active"> <div class="liquid-blob"></div> <div class="liquid-blob"></div> </div>
+  <div id="dashboardBg" class="liquid-bg">
+  </div>
+
+  <!-- Premium Auth UI -->
+  <div id="premiumAuthContainer">
+    <div class="premium-auth-box">
+      <div class="premium-auth-left-panel">
+        <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled_design_4.png?alt=media&token=c804a64c-a2ca-47ef-9f49-98d9a98d20d1" alt="KillerX Logo" class="auth-logo">
+        <h1 class="app-name-title">KILLER X OFFICIAL</h1>
+        <p class="developer-name">SHEZIN BOY</p>
+        <h2 class="features-title">Best Gaming Experience</h2>
+        <ul class="features-list">
+            <li><i class="fas fa-chevron-right"></i> Free and Fast Updates</li>
+            <li><i class="fas fa-chevron-right"></i> Ensuring the Fluidity</li>
+            <li><i class="fas fa-chevron-right"></i> Precision Needed to Master</li>
+            <li><i class="fas fa-chevron-right"></i> Exceptional Performance</li>
+        </ul>
+      </div>
+      <div class="premium-auth-right-panel">
+        <div id="premiumLoginForm" class="auth-form-section">
+          <h1>Sign In</h1>
+          <p class="auth-sub-heading">Log in to your account to continue.</p>
+          <label for="premiumLoginUserId">USER ID</label>
+          <div class="input-group">
+            <input type="text" id="premiumLoginUserId" placeholder="Enter your User ID">
+          </div>
+          <label for="premiumLoginPassword">PASSWORD</label>
+          <div class="input-group">
+            <input type="password" id="premiumLoginPassword" placeholder="Enter your Password">
+          </div>
+          <div class="form-options">
+            <div class="remember-me-container">
+                <input type="checkbox" id="premiumRememberMeCheckbox" />
+                <label for="premiumRememberMeCheckbox">Remember Me</label>
+            </div>
+          </div>
+          <button id="premiumLoginButton" class="auth-action-button">Log In</button>
+          <p class="switch-form-text">Not registered? <span class="switch-link" onclick="toggleAuthFormDisplay('register')">Create an account</span></p>
+        </div>
+
+        <div id="premiumRegisterForm" class="auth-form-section hidden-form slide-in-from-right">
+          <h1>Create Account</h1>
+          <p class="auth-sub-heading">Create a new account to get started.</p>
+          <label for="premiumRegUserId">USER ID</label>
+          <div class="input-group">
+            <input type="text" id="premiumRegUserId" placeholder="Choose User ID (min 3, no spaces)">
+          </div>
+          <label for="premiumRegPassword">PASSWORD</label>
+          <div class="input-group">
+            <input type="password" id="premiumRegPassword" placeholder="Create Password (min 6 chars)">
+          </div>
+          <button id="premiumRegisterButton" class="auth-action-button">Register</button>
+          <p class="switch-form-text">Already have an account? <span class="switch-link" onclick="toggleAuthFormDisplay('login')">Sign In</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End of Premium Auth UI -->
+
+
+  <!-- Auth Status/Error Popups -->
+  <div id="authStatusPopup" class="auth-popup-overlay">
+    <div class="auth-popup-content">
+      <div id="authStatusIconContainer" class="auth-popup-icon" style="display:none;">
+        <i id="authStatusIcon" class="fas"></i>
+      </div>
+      <div id="authStatusSpinner" class="spinner"></div>
+      <p id="authStatusMessage">Loading...</p>
+      <p id="authStatusSubMessage" class="subtext" style="display:none;"></p>
+    </div>
+  </div>
+
+  <div id="authErrorPopupModal" class="auth-popup-overlay">
+    <div class="auth-popup-content error-popup">
+      <h3 id="authErrorPopupTitle">Error</h3>
+      <p id="authErrorPopupMessage">An error occurred.</p>
+      <button id="authErrorPopupCloseBtn">Close</button>
+    </div>
+  </div>
+
+
+  <!-- Dashboard Panel -->
+  <div id="dashboardPanel" class="content-panel" style="display: none;">
+    <button class="menu-toggle-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    
+    <div class="notification-wrapper-main" id="helplineIconWrapper" style="right: 170px;">
+        <button class="notification-btn" onclick="openHelpline()"><i class="fas fa-headset" style="color: var(--success);"></i></button>
+    </div>
+    <div class="notification-wrapper-main" id="storeIconWrapper" style="right: 120px;">
+        <button class="notification-btn" onclick="openGeneralStoreModal()"><i class="fas fa-shopping-bag"></i></button>
+    </div>
+    <div class="notification-wrapper-main" id="packageRenewHeaderIconWrapper" style="right: 70px; display: none;"> <!-- Hidden by default -->
+        <button class="notification-btn" onclick="openPackageRenewModal()"><i class="fas fa-history"></i></button> 
+    </div>
+    <div class="notification-wrapper-main" id="bellIconWrapper" style="right: 20px;">
+        <button class="notification-btn" onclick="showNotifications()"><i class="fas fa-bell"></i> <span id="notifCount">0</span></button>
+    </div>
+
+
+    <div class="sidebar" id="sidebar">
+        <button class="close-sidebar-btn" onclick="toggleSidebar()">×</button>
+        <h2 class="sidebar-title">Side Menu</h2>
+        <button class="premium-dashboard-button edit-profile-btn" onclick="openEditProfileModal(); toggleSidebar()">
+            <i class="fas fa-user-edit"></i> Edit Profile
+        </button>
+        <button class="premium-dashboard-button add-money" onclick="openModal(); toggleSidebar()">
+            <i class="fas fa-plus"></i> Add Money
+        </button>
+        <button class="premium-dashboard-button package-renew-sidebar-btn" id="packageRenewButtonSidebar" onclick="openPackageRenewModal(); toggleSidebar()" style="display: none;">
+            <i class="fas fa-cart-plus"></i> Package Renew
+        </button>
+        <button class="premium-dashboard-button hwid-reset-btn" onclick="openHWIDPopup(); toggleSidebar()">
+            <i class="fas fa-sync-alt"></i> Reset HW ID
+        </button>
+        <button class="premium-dashboard-button download-tools-btn" onclick="openToolsModal(); toggleSidebar()">
+            <i class="fas fa-download"></i> Download Tools
+        </button>
+         <button class="premium-dashboard-button product-history-btn" onclick="showProductHistoryModal(); toggleSidebar()">
+            <i class="fas fa-receipt"></i> PRODUCT HISTORY
+        </button>
+        <button class="premium-dashboard-button history-btn" onclick="showHistory(); toggleSidebar()">
+            <i class="fas fa-history"></i> TRANSACTION HISTORY
+        </button>
+        <button class="premium-dashboard-button logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="main-dashboard-content">
+        <div class="dashboard-header"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled_design_4.png?alt=media&token=c804a64c-a2ca-47ef-9f49-98d9a98d20d1" class="profile-img" alt="Profile" /> <div class="killerx-title">KILLER X PANEL<span>OFFICAL</span></div> </div>
+        <div class="user-id-display">User ID : <span id="dashboardUserIdValue"></span> </div>
+        
+        <div class="balance-container">
+            <div class="points" id="points">0</div>
+            <div class="balance-label">Balance</div>
+        </div>
+        <div class="redeem-section-wrapper"> <h3>Redeem Key</h3> <p>Activate your purchased key by informing below</p> <div class="redeem-input-container"> <i class="fas fa-gift"></i> <input id="redeemCodeInput" type="text" placeholder="KILLER-X-PRODUCT-XXXX" /> <button onclick="redeemCode()">REDEEM KEY</button> </div> </div>
+        
+        <div class="bonus-system-container"> <div class="bonus-add-balance-section"> <h2>টাকা যোগ করুন এবং বোনাস পান</h2> <div class="bonus-progress-bar"></div> <div class="bonus-summary"> <div class="summary-item"><span>মোট যোগ হয়েছে</span><strong id="totalAddedForBonusDisplay">৳0</strong></div> <div class="summary-item"><span>পরবর্তী ধাপ</span><strong id="nextBonusMetaDisplay">৳0</strong></div> <div class="summary-item recent-bonus-item"><span>সাম্প্রতিক বোনাস</span><strong id="recentBonusDisplay">৳0</strong></div> </div> </div> <div class="bonus-accumulated-section"> <i class="fas fa-coins bonus-chest-img"></i> <h2>আপনার জমাকৃত বোনাস</h2> <div class="accumulated-bonus-value-wrapper"><i class="fas fa-coins"></i><span id="accumulatedBonusDisplay">৳0.00</span></div> <button class="claim-bonus-btn" onclick="claimBonus()">বোনাস সংগ্রহ করুন</button> </div> </div>
+        
+        <div class="user-info-details-panel">
+            <div class="info-header">INFORMATION <span id="infoFreeHwidReset" class="free-hwid-reset-display">1/1 FREE HW ID reset</span></div>
+            <p><span class="label-title"><i class="fas fa-fingerprint"></i> Hardware ID :</span> <span id="infoHardwareId" class="value-text">N/A</span></p>
+            <p><span class="label-title"><i class="fas fa-calendar-alt"></i> JOIN DATE :</span> <span id="infoJoinDate" class="value-text">N/A</span></p>
+            <p><span class="label-title"><i id="infoDeviceIcon" class="fas fa-desktop"></i> DEVICE :</span> <span id="infoDeviceType" class="value-text">N/A</span></p>
+        </div>
+
+        <div id="activeProductDisplayPanelContainer" style="width: calc(100% - 40px); max-width: 600px; margin: 20px auto 0 auto; display: flex; flex-direction: column; gap: 20px;">
+        </div>
+
+        <div class="overview-card-standalone"> <div class="card-title">KX Overview</div> <div class="card-text">KILLER X OFFICIAL WEBSITE</div> <div class="card-text">USER DASHBOARD </div> <div class="contact-info"> <span><i class="fas fa-user-tie"></i>OWNER ➤ SHEZIN BOY</span> <span><i class="fab fa-whatsapp"></i> <a href="https://wa.me/8801889221262" target="_blank">  WhatsApp 01889221262</a></span> </div> </div>
+    </div>
+  </div>
+
+  <!-- All Modals -->
+  <div class="modal-bg" id="modalBg"> <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"> <button class="close-btn" aria-label="Close modal" onclick="closeModal()">×</button> <h2 id="modalTitle"><i class="fas fa-wallet"></i> Enter Amount</h2> <input type="number" id="customAmountInput" placeholder="Enter Amount (Min ৳50)" min="50" step="10"> <div class="bonus-message" id="addMoneyBonusMessage"><i class="fas fa-info-circle"></i> ১০০ টাকার বেশি অ্যাড করলেই বোনাস পাবেন 🥰!</div> <button class="confirm-btn" id="confirmAddMoneyBtn" onclick="confirmAdd()" disabled><i class="fas fa-check-circle"></i> Confirm & Pay</button> </div> </div>
+  <div class="modal-bg" id="paymentOptionsModal" style="display: none;"> <div class="modal" role="dialog" aria-modal="true" style="max-width: 450px;"> <button class="close-btn" aria-label="Close modal" onclick="closePaymentOptionsModal()">×</button> <h2><i class="fas fa-credit-card"></i> Select Payment Method</h2> <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;"> <button class="premium-dashboard-button" onclick="showPaymentGateway('bkash')"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.png?alt=media&token=fc1cd24b-930a-4547-8d09-f544ef5d2165" alt="Bkash" style="width: 24px; height: 24px; margin-right: 10px; vertical-align: middle;"> Bkash </button> <button class="premium-dashboard-button" onclick="showPaymentGateway('nagad')"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.jpeg?alt=media&token=98b94d4c-afc8-4830-9842-627100bd8c49" alt="Nagad" style="width: 24px; height: 24px; margin-right: 10px; vertical-align: middle;"> Nagad </button> <button class="premium-dashboard-button" onclick="showPaymentGateway('rocket')"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitl.jpeg?alt=media&token=c0452c5b-21d5-47d7-8966-adf7f8df07ee" alt="Rocket" style="width: 24px; height: 24px; margin-right: 10px; vertical-align: middle;"> Rocket </button> </div> </div> </div>
+  <div class="modal-bg" id="paymentGatewayModal" style="display: none;"> <div class="modal" role="dialog" aria-modal="true" style="max-width: 500px;"> <button class="close-btn" aria-label="Close modal" onclick="closePaymentGatewayModal()">×</button> <h2 id="paymentGatewayTitle" style="display: flex; align-items: center; justify-content: center;"><i class="fas fa-money-check-alt" style="margin-right:10px;"></i> Payment</h2> <div id="paymentGatewayInstructions" style="text-align: left; margin: 20px 0; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; font-size: 13px; line-height: 1.7; border: 1px solid rgba(255,255,255,0.1);"> </div> <input type="text" id="paymentTransactionIdInput" placeholder="Enter Transaction ID" style="width: 100%; padding: 16px 20px; margin-bottom: 20px; border: none; border-radius: 12px; font-size: 16px; outline: none; background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.1);"> <button class="confirm-btn" id="submitPaymentTxnBtn" onclick="submitPaymentTransactionId()"><i class="fas fa-paper-plane"></i> Submit Transaction ID</button> </div> </div>
+  <div class="modal-bg" id="genericSuccessModal" style="display: none;"> <div class="modal"> <button class="close-btn" onclick="closeGenericSuccessModal()">×</button> <h2 style="color: var(--success);"><i class="fas fa-check-circle"></i> Success!</h2> <p id="genericSuccessMessage" style="margin: 20px 0; font-size: 16px;"></p> <button class="confirm-btn" style="background: var(--success);" onclick="closeGenericSuccessModal()">OK</button> </div> </div>
+  <div class="modal-bg" id="genericErrorModal" style="display: none;"> <div class="modal"> <button class="close-btn" onclick="closeGenericErrorModal()">×</button> <h2 style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Error!</h2> <p id="genericErrorMessage" style="margin: 20px 0; font-size: 16px;"></p> <button class="confirm-btn" style="background: var(--danger);" onclick="closeGenericErrorModal()">OK</button> </div> </div>
+  <div class="modal-bg" id="historyModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="closeHistoryModal()">×</button><h2><i class="fas fa-history"></i> Transaction History</h2><p class="auto-removal-notice"><i class="fas fa-info-circle"></i> Records are automatically removed after 3 days.</p><div id="historyList" style="max-height: 400px; overflow-y: auto; margin: 20px 0;"><div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading transactions...</p></div></div></div></div>
+  <div class="modal-bg" id="notificationModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="closeNotificationModal()">×</button><h2><i class="fas fa-bell"></i> Notifications</h2><button onclick="markAllNotificationsRead()" class="mark-all-read-button"><i class="fas fa-check-double"></i> Mark All as Read</button><p class="auto-removal-notice"><i class="fas fa-info-circle"></i> Notifications are automatically removed after 3 days.</p><div id="notificationList" style="max-height: 400px; overflow-y: auto;"></div></div></div>
+  <div class="modal-bg" id="hwidResetModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="document.getElementById('hwidResetModal').style.display='none'">×</button><h2><i class="fas fa-sync-alt"></i> HW ID Reset</h2><p class="hwid-message" style="margin: 20px 0; font-size: 15px;"></p><button class="confirm-hwid-btn" onclick="confirmHWIDReset()"><i class="fas fa-check-circle"></i> RESET</button></div></div>
+  <div class="modal-bg" id="hwidSuccessModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="document.getElementById('hwidSuccessModal').style.display='none'">×</button><h2><i class="fas fa-check-circle"></i> Success</h2><p style="margin: 20px 0; font-size: 15px;">আপনার HW ID রিসেট সফল হয়েছে।</p></div></div>
+  <div class="modal-bg" id="hwidErrorModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="document.getElementById('hwidErrorModal').style.display='none'">×</button><p id="hwidErrorTextContent" class="message-top">আপনার ব্যালেন্সে পর্যাপ্ত কয়েন নেই। আগে ব্যালেন্স যোগ করুন।</p><h2><i class="fas fa-exclamation-triangle"></i> Balance Low</h2></div></div>
+  <div class="modal-bg" id="redeemSuccessModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="document.getElementById('redeemSuccessModal').style.display='none'">×</button><h2><i class="fas fa-check-circle"></i> Redeem Successful</h2><p id="redeemRewardText" style="margin: 20px 0; font-size: 15px;">আপনি সফলভাবে রিডিম করেছেন।</p></div></div>
+  <div class="modal-bg" id="redeemErrorModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="document.getElementById('redeemErrorModal').style.display='none'">×</button><p id="redeemErrorText" class="message-top"></p><h2><i class="fas fa-exclamation-triangle"></i> Redeem Failed</h2></div></div>
+
+  <div class="modal-bg" id="packageRenewModal" style="display: none;">
+    <div class="modal" style="max-width: 95%; width: 800px;">
+        <button class="close-btn" onclick="closePackageRenewModal()">×</button>
+        <h2><i class="fas fa-history"></i> KillerX Package Renew</h2>
+        <div id="packageRenewSection" style="display:block; margin-top: 20px;">
+            <div id="packageRenewItemsList" style="max-height: 400px; overflow-y: auto;">
+                <div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading packages...</p></div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="packageDetailModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="closePackageDetailModal()">×</button><div class="modal-content-wrapper" style="display: flex; flex-direction: column; align-items: center;"><h3 id="detailPackageTitle" class="product-title"></h3><p id="detailPackagePrice" class="product-price"></p><p id="detailPackageDescription" class="product-description"></p><button class="buy-button confirm-btn" id="buyPackageButton"><i class="fas fa-shopping-cart"></i> Buy Now</button></div></div></div>
+  <div class="modal-bg" id="renewConfirmationModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="closeRenewConfirmationModal()">×</button><h2>Confirm Package Purchase</h2><p id="confirmRenewMessage" class="confirm-message"></p><div class="confirmation-buttons" style="display:flex; justify-content:space-around; margin-top:20px;"><button class="confirm-btn confirm-buy-btn" id="confirmRenewFinalButton" style="background:var(--success); width:45%;">Confirm</button><button class="confirm-btn cancel-buy-btn" onclick="closeRenewConfirmationModal()" style="background:var(--danger); width:45%;">Cancel</button></div></div></div>
+  <div class="modal-bg" id="purchaseSuccessModal" style="display: none;">
+    <div class="modal">
+        <button class="close-btn" onclick="closePurchaseSuccessModal()">×</button>
+        <h2><i class="fas fa-check-circle"></i> Purchase Successful!</h2>
+        <p class="message-top">আপনার কেনাকাটা সফল হয়েছে। বিস্তারিত তথ্যের জন্য আপনার নোটিফিকেশন চেক করুন।</p>
+        <p id="purchaseSuccessAdditionalMessage" style="font-size: 14px; text-align: center; color: rgba(255, 255, 255, 0.7); margin-top: 15px;">
+            A notification with your redeem code and purchase details has been sent. Please check your notifications.
+        </p>
+        <button class="confirm-btn" onclick="closePurchaseSuccessModal()">Done</button>
+    </div>
+  </div>
+  <div class="modal-bg" id="toolsModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="closeToolsModal()">×</button><h2><i class="fas fa-tools"></i> Download Tools</h2><div id="toolsList" class="tools-list" style="margin: 20px 0;"><p style="text-align:center;">Loading tools...</p></div></div></div>
+
+  <div class="modal-bg" id="generalStoreModal" style="display: none;">
+    <div class="modal" style="max-width: 95%; width: 800px;">
+      <button class="close-btn" onclick="closeGeneralStoreModal()">×</button>
+      <h2><i class="fas fa-shopping-bag"></i> General Store</h2>
+      <div class="general-store-controls">
+        <select id="generalStoreCategoryFilter">
+            <option value="">All Categories</option>
+        </select>
+        <input type="search" id="generalStoreSearchInput" placeholder="Search products...">
+      </div>
+      <div id="generalStoreProductList" class="general-store-product-grid" style="margin-top: 10px; max-height: 55vh; overflow-y: auto;">
+        <div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading products...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="generalStoreItemPurchaseConfirmationModal" style="display: none;">
+      <div class="modal general-store-item-purchase-confirmation-modal"> 
+          <button class="close-btn" onclick="closeGeneralStoreItemPurchaseConfirmationModal()">×</button>
+          <h2>Confirm Purchase</h2>
+          <div id="generalStoreItemConfirmImage"></div>
+          <p id="generalStoreItemConfirmMessage" class="confirm-message"></p>
+          <p id="generalStoreItemConfirmAdditionalMessage" class="additional-message" style="display:none;"></p>
+          <div class="confirmation-buttons" style="display:flex; justify-content:space-around; margin-top:20px;">
+              <button class="confirm-btn confirm-buy-btn" id="confirmGeneralStoreItemFinalButton" style="background:var(--success); width:45%;">Confirm Buy</button>
+              <button class="confirm-btn cancel-buy-btn" onclick="closeGeneralStoreItemPurchaseConfirmationModal()" style="background:var(--danger); width:45%;">Cancel</button>
+          </div>
+      </div>
+  </div>
+
+  <div class="modal-bg" id="downloadPanelModal" style="display: none;">
+    <div class="modal">
+        <button class="close-btn" onclick="closeDownloadPanelModal()">×</button>
+        <h2 id="downloadPanelTitle"><i class="fas fa-desktop"></i> Download Your Panel</h2>
+        <div id="downloadPanelButtonsContainer" class="tools-list" style="margin: 20px 0;">
+            <p id="downloadPanelMessage" style="text-align:center; display:none;">No panel available for download.</p>
+            <button id="downloadPremiumPanelBtn" style="display:none;" class="tools-list-button" data-productkey="Premium"><i class="fas fa-star"></i> Download Premium Panel</button>
+            <button id="downloadBasicPanelBtn" style="display:none;" class="tools-list-button" data-productkey="BasicAimbot"><i class="fas fa-cog"></i> Download BASIC AIMBOT Panel</button>
+            <button id="downloadBasicSniperPanelBtn" style="display:none;" class="tools-list-button" data-productkey="BasicSniper"><i class="fas fa-crosshairs"></i> Download BASIC SNIPER Panel</button>
+            <button id="downloadUnsafePanelBtn" style="display:none;" class="tools-list-button" data-productkey="Unsafe"><i class="fas fa-exclamation-triangle"></i> Download Unsafe Panel</button>
+            <button id="downloadBypassPanelBtn" style="display:none;" class="tools-list-button" data-productkey="Bypass"><i class="fas fa-shield-alt"></i> Download Bypass Panel</button>
+            <button id="downloadMobilePanelBtn" style="display:none;" class="tools-list-button" data-productkey="Mobile"><i class="fas fa-mobile-alt"></i> Download Mobile Panel</button>
+        </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="productHistoryModal" style="display: none;">
+    <div class="modal" style="max-width: 600px;">
+        <button class="close-btn" onclick="closeProductHistoryModal()">×</button>
+        <h2><i class="fas fa-receipt"></i> Product Purchase History</h2>
+        <p class="auto-removal-notice"><i class="fas fa-info-circle"></i> History older than 30 days is not shown.</p>
+        <div id="productHistoryList" style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
+            <div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading history...</p></div>
+        </div>
+    </div>
+  </div>
+
+
+  <div class="modal-bg" id="editProfileModal" style="display: none;">
+    <div class="modal" style="max-width: 450px;">
+        <button class="close-btn" onclick="closeEditProfileModal()">×</button>
+        <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+        <div style="margin-top: 20px;">
+            <div class="modal-form-group">
+                <label for="editProfileCurrentUserId">User ID (Cannot be changed)</label>
+                <input type="text" id="editProfileCurrentUserId" readonly>
+            </div>
+            <div class="modal-form-group">
+                <label for="editProfileNewPassword">New Password (min. 6 chars)</label>
+                <input type="password" id="editProfileNewPassword" placeholder="Enter new password">
+            </div>
+            <div class="modal-form-group">
+                <label for="editProfileConfirmPassword">Confirm New Password</label>
+                <input type="password" id="editProfileConfirmPassword" placeholder="Confirm new password">
+            </div>
+            <p class="fee-message"><i class="fas fa-coins"></i> Password change costs 5 Taka.</p>
+            <button class="confirm-btn" id="confirmProfileChangesBtn" onclick="handleProfileChanges()">
+                <i class="fas fa-check-circle"></i> Change Password
+            </button>
+            <button class="confirm-btn" id="deleteAccountBtn" style="background: var(--danger); margin-top: 15px;" onclick="confirmDeleteAccountRequest()">
+                <i class="fas fa-trash-alt"></i> Delete Account
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <div class="modal-bg" id="deleteAccountConfirmationModal" style="display: none;">
+    <div class="modal">
+        <button class="close-btn" onclick="closeDeleteAccountConfirmationModal()">×</button>
+        <h2><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Confirm Account Deletion</h2>
+        <p class="message-top" style="color: var(--danger); font-weight: bold;">Are you absolutely sure you want to request account deletion? This action is IRREVERSIBLE once processed by an admin.</p>
+        <p>Your account data will be marked for deletion.</p>
+        <div class="confirmation-buttons" style="display:flex; justify-content:space-around; margin-top:20px;">
+            <button class="confirm-btn" id="executeDeleteAccountBtn" style="background:var(--danger); width:45%;" onclick="executeDeleteAccountRequest()">Yes, Delete My Account</button>
+            <button class="confirm-btn" onclick="closeDeleteAccountConfirmationModal()" style="background:var(--secondary); width:45%;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+  // Firebase config
+  const firebaseConfig = { apiKey: "AIzaSyAueM2O16GbLJX4TmfK7g8IZyFJRMdh1WE", databaseURL: "https://ng-mods-x2-default-rtdb.firebaseio.com", projectId: "ng-mods-x2", storageBucket: "ng-mods-x2.appspot.com" };
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  let currentUser = null;
+  let transactionListener = null;
+  let selectedPackageForPurchase = null; 
+  let currentPaymentMethod = null;
+  let selectedAmount = null;
+  const MIN_ADD_AMOUNT = 50;
+  window.userListener = null;
+  let currentGeneralStoreItemForPurchase = null;
+  let allStoreProducts = [];
+  let firebasePackageOffers = []; 
+  let activeDeviceProducts = []; 
+  let sessionNotifiedExpiredIds = new Set();
+
+
+  const productKeyMap = {
+    "Premium": { displayName: "Premium Panel", downloadKey: "Premium", categoryForStore: "Premium_Panel", renewCodePart: "PREMIUM", lifetimeFlag: "Premium lifetime", basePricePer30DaysRenew: 150 },
+    "Bypass": { displayName: "Bypass Panel", downloadKey: "Bypass", categoryForStore: "Bypass_Panel", renewCodePart: "BYPASS" }, // No renewal for Bypass
+    "Unsafe": { displayName: "Unsafe Panel", downloadKey: "Unsafe", categoryForStore: "Unsafe_Panel", renewCodePart: "UNSAFE", lifetimeFlag: "Unsafe lifetime", basePricePer30DaysRenew: 150 },
+    "BasicSniper": { displayName: "Basic Sniper Panel", downloadKey: "BasicSniper", categoryForStore: "Basic_Sniper_Panel", renewCodePart: "BASICSNIPER", lifetimeFlag: "Basic sniper lifetime", basePricePer30DaysRenew: 100 },
+    "BasicAimbot": { displayName: "Basic Aimbot Panel", downloadKey: "BasicAimbot", categoryForStore: "Basic_Aimbot_Panel", renewCodePart: "BASICAIMBOT", lifetimeFlag: "Basic aimbot lifetime", basePricePer30DaysRenew: 100 },
+    "Mobile": { displayName: "Mobile Panel", downloadKey: "Mobile", categoryForStore: "Mobile_Panel", renewCodePart: "MOBILE" } // No renewal for Mobile
+  };
+  const PRODUCT_NAME_IN_REDEEM_CODE_MAP = { 
+      PREMIUM: "Premium",
+      BYPASS: "Bypass",
+      UNSAFE: "Unsafe",
+      BASICSNIPER: "BasicSniper",
+      BASICAIMBOT: "BasicAimbot",
+      MOBILE: "Mobile"
+  };
+
+
+  const dashboardPanel = document.getElementById('dashboardPanel');
+  const loginBg = document.getElementById('loginBg');
+  const dashboardBg = document.getElementById('dashboardBg');
+
+  const premiumAuthContainer = document.getElementById('premiumAuthContainer');
+  const premiumLoginForm = document.getElementById('premiumLoginForm');
+  const premiumRegisterForm = document.getElementById('premiumRegisterForm');
+  const premiumLoginUserIdInput = document.getElementById('premiumLoginUserId');
+  const premiumLoginPasswordInput = document.getElementById('premiumLoginPassword');
+  const premiumRememberMeCheckbox = document.getElementById('premiumRememberMeCheckbox');
+  const premiumRegUserIdInput = document.getElementById('premiumRegUserId');
+  const premiumRegPasswordInput = document.getElementById('premiumRegPassword');
+  const premiumLoginButton = document.getElementById('premiumLoginButton');
+  const premiumRegisterButton = document.getElementById('premiumRegisterButton');
+
+
+  const authStatusPopup = document.getElementById('authStatusPopup');
+  const authStatusSpinner = document.getElementById('authStatusSpinner');
+  const authStatusMessage = document.getElementById('authStatusMessage');
+  const authStatusSubMessage = document.getElementById('authStatusSubMessage');
+  const authStatusIconContainer = document.getElementById('authStatusIconContainer');
+  const authStatusIcon = document.getElementById('authStatusIcon');
+
+
+  const authErrorPopupModal = document.getElementById('authErrorPopupModal');
+  const authErrorPopupTitle = document.getElementById('authErrorPopupTitle');
+  const authErrorPopupMessage = document.getElementById('authErrorPopupMessage');
+  const authErrorPopupCloseBtn = document.getElementById('authErrorPopupCloseBtn');
+
+  authErrorPopupCloseBtn.addEventListener('click', () => {
+    authErrorPopupModal.classList.remove('visible');
+    authErrorPopupModal.classList.remove('position-top');
+  });
+  premiumLoginButton.addEventListener('click', handleLogin);
+  premiumRegisterButton.addEventListener('click', handleRegister);
+
+
+  function showAuthStatusPopup(message = "Processing...", showSpinner = true, iconClass = null, subMessage = null) {
+    authStatusMessage.textContent = message;
+    authStatusSpinner.style.display = showSpinner ? 'block' : 'none';
+
+    if (iconClass) {
+        authStatusIcon.className = `fas ${iconClass}`;
+        authStatusIconContainer.className = `auth-popup-icon ${iconClass.includes('check') ? 'success' : (iconClass.includes('times') || iconClass.includes('exclamation') ? 'error' : '')}`;
+        authStatusIconContainer.style.display = 'block';
+    } else {
+        authStatusIconContainer.style.display = 'none';
+    }
+
+    if (subMessage) {
+        authStatusSubMessage.textContent = subMessage;
+        authStatusSubMessage.style.display = 'block';
+    } else {
+        authStatusSubMessage.style.display = 'none';
+    }
+    authStatusPopup.classList.add('visible');
+  }
+
+  function hideAuthStatusPopup() {
+    authStatusPopup.classList.remove('visible');
+    authStatusPopup.classList.remove('position-top');
+  }
+
+  function showAuthErrorPopup(title, message, positionTop = false) {
+    authErrorPopupTitle.textContent = title;
+    authErrorPopupMessage.textContent = message;
+    authErrorPopupModal.classList.add('visible');
+    if (positionTop) {
+        authErrorPopupModal.classList.add('position-top');
+    } else {
+        authErrorPopupModal.classList.remove('position-top');
+    }
+  }
+
+  function toggleAuthFormDisplay(formToShow) {
+    const loginForm = premiumLoginForm;
+    const registerForm = premiumRegisterForm;
+
+    if (formToShow === 'register') {
+        loginForm.classList.add('hidden-form', 'slide-out-left');
+
+        registerForm.classList.remove('hidden-form', 'slide-out-left');
+        registerForm.classList.add('slide-in-from-right');
+        void registerForm.offsetWidth; 
+        registerForm.classList.remove('slide-in-from-right');
+
+    } else {
+        registerForm.classList.add('hidden-form', 'slide-out-left');
+
+        loginForm.classList.remove('hidden-form', 'slide-out-left');
+        loginForm.classList.add('slide-in-from-right');
+        void loginForm.offsetWidth; 
+        loginForm.classList.remove('slide-in-from-right');
+    }
+}
+
+
+  async function handleRegister() {
+    const userId = premiumRegUserIdInput.value.trim().toLowerCase();
+    const password = premiumRegPasswordInput.value;
+
+    if (!userId || !password) return showAuthErrorPopup("Input Error", "Fill out all fields.");
+    if (userId.length < 3 || userId.includes(" ")) return showAuthErrorPopup("Input Error", "User ID must be at least 3 characters and contain no spaces.");
+    if (password.length < 6) return showAuthErrorPopup("Input Error", "Password must be at least 6 characters.");
+
+    showAuthStatusPopup("Registering...");
+    try {
+      const snapshot = await database.ref('users/' + userId).once('value');
+      if (snapshot.exists()) {
+        hideAuthStatusPopup();
+        showAuthErrorPopup("Registration Failed", "User ID already exists.");
+      } else {
+        const initialUserData = {
+            password: password, 
+            balance: 0, 
+            machineId: null,
+            createdAt: new Date().toISOString(), 
+            totalAddedForBonus: 0, 
+            accumulatedBonus: 0,
+            lastBonusMilestoneAchieved: -1, 
+            recentBonusAmount: 0, 
+            isBlocked: false, 
+            resetFreeUsed: false,
+            failedRedeemAttempts: 0,
+            "Premium lifetime": false,
+            "Unsafe lifetime": false,
+            "Basic aimbot lifetime": false,
+            "Basic sniper lifetime": false
+        };
+        await database.ref('users/' + userId).set(initialUserData);
+        showAuthStatusPopup("✅ Registered successfully!", false, "fa-check-circle", "Redirecting to login...");
+        premiumRegUserIdInput.value = ''; premiumRegPasswordInput.value = '';
+        setTimeout(() => { hideAuthStatusPopup(); toggleAuthFormDisplay('login'); }, 2000);
+      }
+    } catch (error) {
+        hideAuthStatusPopup(); console.error("Registration error:", error);
+        showAuthErrorPopup("Registration Failed", error.message);
+    }
+  }
+
+  async function handleLogin() {
+    const userId = premiumLoginUserIdInput.value.trim().toLowerCase();
+    const password = premiumLoginPasswordInput.value;
+
+    if (!userId || !password) return showAuthErrorPopup("Input Error", "Fill out all fields.");
+    showAuthStatusPopup("Logging in...");
+
+    try {
+      const userRef = database.ref('users/' + userId);
+      const snapshot = await userRef.once('value');
+
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        if (userData.password === password) {
+          if (userData.isBlocked === true) {
+              hideAuthStatusPopup(); showAuthErrorPopup("Login Failed", "Account blocked. Contact admin."); return;
+          }
+          currentUser = userId; localStorage.setItem('currentUser', userId);
+          if (premiumRememberMeCheckbox.checked) {
+            localStorage.setItem('rememberedUser', userId); localStorage.setItem('rememberedPass', password);
+          } else {
+            localStorage.removeItem('rememberedUser'); localStorage.removeItem('rememberedPass');
+          }
+          showAuthStatusPopup("✅ Login Successful!", false, "fa-check-circle", "Loading dashboard...");
+          setTimeout(() => {
+            hideAuthStatusPopup(); premiumAuthContainer.classList.remove('visible');
+            dashboardPanel.style.display = 'flex'; loginBg.classList.remove('active');
+            dashboardBg.classList.add('active'); document.body.style.overflow = 'auto';
+            showDashboardUI(userId, userData);
+          }, 2000);
+        } else { hideAuthStatusPopup(); showAuthErrorPopup("Login Failed", "Incorrect password."); }
+      } else { hideAuthStatusPopup(); showAuthErrorPopup("Login Failed", "User ID not found."); }
+    } catch (error) {
+      hideAuthStatusPopup(); showAuthErrorPopup('Login Failed', 'An error occurred: ' + error.message);
+      console.error('Login error:', error);
+    }
+  }
+
+  function displayBannedPopup() {
+      showAuthErrorPopup("Account Banned", "Your account is banned. Please contact the administrator via WhatsApp: 01889221262.");
+  }
+  
+  function getProductFileLinkKeyFromCategory(category) { 
+    if (!category) return null;
+    const catLower = category.toLowerCase().trim();
+    for (const key in productKeyMap) {
+        if (productKeyMap[key].categoryForStore && productKeyMap[key].categoryForStore.toLowerCase() === catLower) {
+            return key; 
+        }
+    }
+    if (catLower.includes("premium")) return "Premium";
+    if (catLower.includes("bypass")) return "Bypass";
+    if (catLower.includes("unsafe")) return "Unsafe";
+    if (catLower.includes("basic_sniper") || (catLower.includes("basic") && catLower.includes("sniper"))) return "BasicSniper";
+    if (catLower.includes("basic_aimbot") || (catLower.includes("basic") && catLower.includes("aimbot"))) return "BasicAimbot";
+    if (catLower.includes("mobile")) return "Mobile";
+    
+    console.warn("Could not map category to FileLink key from General Store:", category);
+    return null; 
+}
+
+
+  function adjustDashboardHeaderIcons(userData) {
+    if (!currentUser || !userData) return;
+    const helplineIconWrapper = document.getElementById('helplineIconWrapper');
+    const storeIconWrapper = document.getElementById('storeIconWrapper');
+    const renewHeaderIconWrapper = document.getElementById('packageRenewHeaderIconWrapper'); 
+    const sidebarRenewButton = document.getElementById('packageRenewButtonSidebar');
+
+    if (!helplineIconWrapper || !storeIconWrapper || !renewHeaderIconWrapper || !sidebarRenewButton) return;
+    
+    let canRenewAnyProduct = false;
+    for (const key in productKeyMap) {
+        const productInfo = productKeyMap[key];
+        if (productInfo.lifetimeFlag && userData[productInfo.lifetimeFlag] === true && productInfo.basePricePer30DaysRenew) {
+            canRenewAnyProduct = true;
+            break;
+        }
+    }
+
+    helplineIconWrapper.style.top = '20px';
+    storeIconWrapper.style.top = '20px'; 
+    renewHeaderIconWrapper.style.top = '20px';
+
+    if (canRenewAnyProduct) {
+        renewHeaderIconWrapper.style.display = 'block'; 
+        sidebarRenewButton.style.display = 'flex';
+        renewHeaderIconWrapper.style.right = '70px';
+        storeIconWrapper.style.right = '120px';
+        helplineIconWrapper.style.right = '170px';
+    } else {
+        renewHeaderIconWrapper.style.display = 'none'; 
+        sidebarRenewButton.style.display = 'none';
+        storeIconWrapper.style.right = '70px'; 
+        helplineIconWrapper.style.right = '120px';
+    }
+  }
+
+  async function sendNotificationAfterPurchase(userId, purchaseDetails) {
+    if (!userId || !purchaseDetails) return;
+
+    const notificationsRef = database.ref(`notifications/${userId}`);
+    const newNotifRef = notificationsRef.push();
+    
+    let approxNewExpiryMessage = "N/A";
+    if (purchaseDetails.approxExpiryDateIfRedeemedNow) {
+        approxNewExpiryMessage = `If redeemed now, your new expiry for ${purchaseDetails.productName} will be approximately ${purchaseDetails.approxExpiryDateIfRedeemedNow}.`;
+    }
+
+
+    const notificationData = {
+        message: `Purchase successful for: ${purchaseDetails.productName}.`,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        read: false,
+        type: "purchase_receipt", 
+        details: { 
+            redeemCode: purchaseDetails.redeemCode,
+            productName: purchaseDetails.productName,
+            durationDays: purchaseDetails.durationDays,
+            pricePaid: purchaseDetails.pricePaid,
+            approxExpiryMessage: approxNewExpiryMessage, 
+            productFileLinkKey: purchaseDetails.productFileLinkKeyForNotification
+        }
+    };
+    try {
+        await newNotifRef.set(notificationData);
+        console.log(`Purchase notification sent for ${purchaseDetails.productName} to user ${userId}`);
+        database.ref('notifications/' + currentUser).orderByChild('read').equalTo(false).once('value').then(s => {
+            const unreadNotifs = s.val() || {};
+            document.getElementById('notifCount').textContent = Object.keys(unreadNotifs).length;
+        });
+    } catch (error) {
+        console.error("Error sending purchase notification:", error);
+    }
+}
+
+async function sendExpiryNotification(userId, productName, productFileLinkKey) {
+    if (!userId || !productName || !productFileLinkKey) return;
+    const notificationSessionKey = `notified_expired_${productFileLinkKey}_${userId}`; 
+    if (sessionStorage.getItem(notificationSessionKey)) return; 
+
+    const notificationsRef = database.ref(`notifications/${userId}`);
+    const newNotifRef = notificationsRef.push();
+    const notificationData = {
+        message: `Your "${productName}" subscription has expired. Purchase again from the store or renew if you liked it!`,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        read: false,
+        type: "expiry_alert",
+        details: {
+            productName: productName,
+            productFileLinkKey: productFileLinkKey
+        }
+    };
+    try {
+        await newNotifRef.set(notificationData);
+        sessionStorage.setItem(notificationSessionKey, 'true'); 
+        console.log(`Expiry notification sent for ${productName} (Key: ${productFileLinkKey}) to user ${userId}`);
+        database.ref('notifications/' + currentUser).orderByChild('read').equalTo(false).once('value').then(s => {
+            const unreadNotifs = s.val() || {};
+            document.getElementById('notifCount').textContent = Object.keys(unreadNotifs).length;
+        });
+    } catch (error) {
+        console.error("Error sending expiry notification:", error);
+    }
+}
+
+
+  async function showDashboardUI(username, userData) {
+      if (userData.isBlocked === true) { displayBannedPopup(); logout(); return; }
+      
+      activeDeviceProducts = []; 
+      const now = new Date();
+
+      for (const pKey in productKeyMap) {
+          const productInfo = productKeyMap[pKey];
+          const expiryDateStr = userData[`${pKey} expiredate`];
+          const isLifetime = productInfo.lifetimeFlag && userData[productInfo.lifetimeFlag] === true;
+
+          if (expiryDateStr || isLifetime) { 
+              let expiryDate = null;
+              if (expiryDateStr) {
+                  expiryDate = new Date(expiryDateStr);
+              }
+
+              if (isLifetime || (expiryDate && expiryDate > now)) {
+                  activeDeviceProducts.push({
+                      id: pKey,
+                      productFileLinkKey: pKey,
+                      productName: productInfo.displayName,
+                      productTypeForDownload: productInfo.downloadKey,
+                      expiryDate: expiryDateStr, 
+                      isLifetime: isLifetime
+                  });
+              } else if (expiryDate && expiryDate <= now && !isLifetime) {
+                  sendExpiryNotification(currentUser, productInfo.displayName, pKey);
+              }
+          }
+      }
+      activeDeviceProducts.sort((a,b) => {
+          if (a.isLifetime && !b.isLifetime) return -1;
+          if (!a.isLifetime && b.isLifetime) return 1;
+          const aExpiry = a.expiryDate ? new Date(a.expiryDate).getTime() : 0;
+          const bExpiry = b.expiryDate ? new Date(b.expiryDate).getTime() : 0;
+          if (aExpiry === 0 && bExpiry > 0) return 1; // No expiry (lifetime without date) goes last among active
+          if (bExpiry === 0 && aExpiry > 0) return -1;
+          return bExpiry - aExpiry; // Then by expiry date descending
+      });
+
+      document.getElementById('dashboardUserIdValue').textContent = username.toUpperCase();
+      
+      document.getElementById('infoFreeHwidReset').textContent = (userData.resetFreeUsed ? "0/1" : "1/1") + " FREE HW ID reset";
+      document.getElementById('infoHardwareId').textContent = userData.machineId || 'N/A';
+      document.getElementById('infoJoinDate').textContent = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A';
+      
+      const deviceTypeEl = document.getElementById('infoDeviceType');
+      const deviceIconEl = document.getElementById('infoDeviceIcon');
+      const isMobileUserActive = activeDeviceProducts.some(p => p.productFileLinkKey === "Mobile" && (!p.expiryDate || new Date(p.expiryDate) > now)); // Check if active mobile product
+      if (isMobileUserActive) {
+          deviceTypeEl.textContent = "Mobile";
+          deviceIconEl.className = "fas fa-mobile-alt";
+      } else {
+          deviceTypeEl.textContent = "Desktop";
+          deviceIconEl.className = "fas fa-desktop";
+      }
+      
+      updateActiveProductDisplayPanels(userData); 
+      adjustDashboardHeaderIcons(userData);
+
+      database.ref('notifications/' + username).orderByChild('read').equalTo(false).once('value').then(s => {
+          const unreadNotifs = s.val() || {};
+          document.getElementById('notifCount').textContent = Object.keys(unreadNotifs).length;
+      }).catch(() => { document.getElementById('notifCount').textContent = 0; });
+
+      if (!window.userListener || window.userListener.userId !== username) { 
+          animatePoints(0, userData.balance || 0, 1500);
+      } else { 
+          document.getElementById('points').textContent = userData.balance || 0;
+      }
+      
+      initializeBonusSystemUI();
+      displayBonusSystem(userData);
+
+      if(window.userListener && window.userListener.userId === username) {
+          // Listener for this user already exists
+      } else {
+          if(window.userListener) database.ref('users/' + window.userListener.userId).off('value', window.userListener.fn);
+          
+          const listenerFn = snapshot => {
+              const liveUserData = snapshot.val();
+              if (liveUserData && document.getElementById('points')) { 
+                  if (liveUserData.isBlocked === true) {
+                      if(window.userListener) database.ref('users/' + currentUser).off('value', window.userListener.fn);
+                      window.userListener = null;
+                      displayBannedPopup(); logout(); return;
+                  }
+                  document.getElementById('points').textContent = liveUserData.balance || 0;
+                  
+                  activeDeviceProducts = [];
+                  const nowLive = new Date();
+                  for (const pKey_listener in productKeyMap) {
+                      const productInfo_listener = productKeyMap[pKey_listener];
+                      const expiryDateStr_listener = liveUserData[`${pKey_listener} expiredate`];
+                      const isLifetime_listener = productInfo_listener.lifetimeFlag && liveUserData[productInfo_listener.lifetimeFlag] === true;
+
+                      if (expiryDateStr_listener || isLifetime_listener) {
+                          let expiryDate_listener = null;
+                          if (expiryDateStr_listener) {
+                              expiryDate_listener = new Date(expiryDateStr_listener);
+                          }
+                          if (isLifetime_listener || (expiryDate_listener && expiryDate_listener > nowLive)) {
+                              activeDeviceProducts.push({
+                                  id: pKey_listener, productFileLinkKey: pKey_listener,
+                                  productName: productInfo_listener.displayName, productTypeForDownload: productInfo_listener.downloadKey,
+                                  expiryDate: expiryDateStr_listener, isLifetime: isLifetime_listener
+                              });
+                          } else if (expiryDate_listener && expiryDate_listener <= nowLive && !isLifetime_listener) {
+                              sendExpiryNotification(currentUser, productInfo_listener.displayName, pKey_listener);
+                          }
+                      }
+                  }
+                  activeDeviceProducts.sort((a,b) => {
+                      if (a.isLifetime && !b.isLifetime) return -1;
+                      if (!a.isLifetime && b.isLifetime) return 1;
+                      const aExpiry = a.expiryDate ? new Date(a.expiryDate).getTime() : 0;
+                      const bExpiry = b.expiryDate ? new Date(b.expiryDate).getTime() : 0;
+                      if (aExpiry === 0 && bExpiry > 0) return 1;
+                      if (bExpiry === 0 && aExpiry > 0) return -1;
+                      return bExpiry - aExpiry;
+                  });
+                  updateActiveProductDisplayPanels(liveUserData);
+
+                  displayBonusSystem(liveUserData);
+                  document.getElementById('infoFreeHwidReset').textContent = (liveUserData.resetFreeUsed ? "0/1" : "1/1") + " FREE HW ID reset";
+                  document.getElementById('infoHardwareId').textContent = liveUserData.machineId || 'N/A';
+                 
+                  const isMobileUserLive = activeDeviceProducts.some(p => p.productFileLinkKey === "Mobile" && (!p.expiryDate || new Date(p.expiryDate) > nowLive));
+                    if (isMobileUserLive) {
+                        document.getElementById('infoDeviceType').textContent = "Mobile";
+                        document.getElementById('infoDeviceIcon').className = "fas fa-mobile-alt";
+                    } else {
+                        document.getElementById('infoDeviceType').textContent = "Desktop";
+                        document.getElementById('infoDeviceIcon').className = "fas fa-desktop";
+                    }
+                  adjustDashboardHeaderIcons(liveUserData);
+              } else if (!liveUserData && currentUser === username) { 
+                  if(window.userListener) database.ref('users/' + currentUser).off('value', window.userListener.fn);
+                  window.userListener = null;
+                  logout(); showGenericError("Session Error", "Your account data could not be found. Please log in again.", true);
+              }
+          };
+          window.userListener = { userId: username, fn: listenerFn };
+          database.ref('users/' + username).on('value', listenerFn);
+      }
+  }
+
+  function updateActiveProductDisplayPanels(userData) { // userData passed for lifetime checks if needed
+    const container = document.getElementById('activeProductDisplayPanelContainer');
+    container.innerHTML = ''; 
+
+    // Clear old intervals if any, though less critical now with cloning buttons
+    document.querySelectorAll('.active-product-display-panel .value[id^="activeProductExpiry_"]').forEach(el => {
+        if (el.countdownIntervalId) {
+            clearInterval(el.countdownIntervalId);
+            el.countdownIntervalId = null;
+        }
+    });
+
+    if (activeDeviceProducts.length === 0) {
+        const noProductsEl = document.createElement('p');
+        noProductsEl.textContent = "No active products. Redeem a key or purchase from store to get started!";
+        noProductsEl.style.textAlign = "center";
+        noProductsEl.style.color = "rgba(255,255,255,0.7)";
+        noProductsEl.style.padding = "20px";
+        container.appendChild(noProductsEl);
+        return;
+    }
+    
+    activeDeviceProducts.forEach(product => {
+        const panel = document.createElement('div');
+        panel.className = 'active-product-display-panel'; 
+        panel.dataset.productId = product.id; 
+
+        if (product.isLifetime) {
+            panel.classList.add('lifetime-product-card');
+            const badge = document.createElement('div');
+            badge.className = 'lifetime-badge';
+            badge.textContent = 'LIFETIME';
+            panel.appendChild(badge); // Add badge, CSS will position it
+        }
+        
+        const expiryElementId = `activeProductExpiry_${product.id.replace(/[^a-zA-Z0-9]/g, "")}`;
+        const latestRedeemKeyForThisProduct = "N/A"; // Kept as N/A
+
+        panel.innerHTML = `
+            ${product.isLifetime ? '<div class="lifetime-badge">LIFETIME</div>' : ''}
+            <div class="active-product-item">
+                <span class="label">PRODUCT :</span>
+                <span class="value">${product.productName}</span>
+            </div>
+            <div class="active-product-item">
+                <span class="label">LAST REDEEM KEY :</span>
+                <span class="value">${latestRedeemKeyForThisProduct}</span>
+            </div>
+            <div class="active-product-item">
+                <span class="label">EXPIRE IN :</span>
+                <span class="value" id="${expiryElementId}">Loading...</span>
+            </div>
+            <div class="download-section">
+                <span class="download-now-text">DOWNLOAD NOW <i class="fas fa-chevron-right"></i></span>
+                <button class="active-product-download-btn" data-productkeyfordownload="${product.productTypeForDownload}">DOWNLOAD</button>
+            </div>
+        `;
+        container.appendChild(panel);
+        
+        const expiryDisplayElement = panel.querySelector(`#${expiryElementId}`);
+        if (expiryDisplayElement) {
+            updateCountdown(product, expiryDisplayElement, product.isLifetime); // Pass isLifetime
+        }
+        panel.querySelector('.active-product-download-btn').addEventListener('click', function() {
+            // This initial listener is for download. It will be replaced if product expires and is lifetime.
+            openDownloadPanelModal(this.dataset.productkeyfordownload);
+        });
+    });
+}
+
+
+  function logout() {
+    if (currentUser) {
+        if(window.userListener && window.userListener.userId === currentUser) {
+             database.ref('users/' + currentUser).off('value', window.userListener.fn);
+             window.userListener = null;
+        }
+        if (transactionListener) { database.ref('transactions/' + currentUser).off('value', transactionListener); transactionListener = null; }
+        
+        document.querySelectorAll('.active-product-display-panel .value[id^="activeProductExpiry_"]').forEach(el => {
+            if (el.countdownIntervalId) {
+                clearInterval(el.countdownIntervalId);
+                el.countdownIntervalId = null;
+            }
+        });
+        activeDeviceProducts = [];
+        sessionStorage.clear(); 
+
+        currentUser = null; localStorage.removeItem('currentUser');
+    }
+    displayAuthScreen();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    sessionStorage.clear(); 
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    const rememberedPass = localStorage.getItem('rememberedPass');
+    if (rememberedUser && rememberedPass) {
+        premiumLoginUserIdInput.value = rememberedUser; premiumLoginPasswordInput.value = rememberedPass;
+        premiumRememberMeCheckbox.checked = true;
+    }
+    const storedUserId = localStorage.getItem('currentUser');
+    if (storedUserId) {
+        database.ref('users/' + storedUserId).once('value')
+        .then(s => {
+            if (s.exists()) {
+                const userData = s.val();
+                if (userData.isBlocked === true) {
+                    localStorage.removeItem('currentUser'); 
+                    displayAuthScreen();
+                    showAuthErrorPopup("Login Required", "Your account was blocked. Please contact admin.");
+                } else {
+                    currentUser = storedUserId; premiumAuthContainer.classList.remove('visible');
+                    dashboardPanel.style.display = 'flex'; loginBg.classList.remove('active');
+                    dashboardBg.classList.add('active'); document.body.style.overflow = 'auto';
+                    showDashboardUI(storedUserId, userData);
+                }
+            } else { 
+                localStorage.removeItem('currentUser'); 
+                displayAuthScreen(); 
+            }
+        })
+        .catch(e => {
+            console.error("Auto-login DB fetch failed:", e);
+            localStorage.removeItem('currentUser'); 
+            displayAuthScreen();
+        });
+    } else { displayAuthScreen(); }
+
+    const categoryFilter = document.getElementById('generalStoreCategoryFilter');
+    if (categoryFilter) categoryFilter.addEventListener('change', displayFilteredStoreProducts);
+    const searchInput = document.getElementById('generalStoreSearchInput');
+    if (searchInput) searchInput.addEventListener('input', displayFilteredStoreProducts);
+
+    document.querySelectorAll('#downloadPanelButtonsContainer .tools-list-button').forEach(button => {
+        button.addEventListener('click', (e) => downloadProductPanel(e.currentTarget.dataset.productkey));
+    });
+  });
+
+  function displayAuthScreen() {
+    dashboardPanel.style.display = 'none'; premiumAuthContainer.classList.add('visible');
+    premiumLoginForm.classList.remove('hidden-form', 'slide-out-left', 'slide-in-from-right');
+    premiumRegisterForm.classList.add('hidden-form', 'slide-in-from-right');
+    loginBg.classList.add('active'); dashboardBg.classList.remove('active');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('activeProductDisplayPanelContainer').innerHTML = ''; 
+  }
+
+  function animatePoints(start, end, duration) { const el = document.getElementById('points'); if (!el) return; let ts = null; const step = t => { if (!ts) ts = t; const p = Math.min((t - ts) / duration, 1); el.textContent = Math.floor(p * (end - start) + start); if (p < 1) window.requestAnimationFrame(step); }; window.requestAnimationFrame(step); }
+
+  function updateCountdown(productDataForCountdown, displayElement, isLifetimeProduct) {
+    const el = displayElement;
+    if (!el) return;
+
+    if (el.countdownIntervalId) clearInterval(el.countdownIntervalId);
+    el.innerHTML = ''; 
+    let targetExpiryTime = 0;
+    
+    if (productDataForCountdown.expiryDate) {
+        targetExpiryTime = new Date(productDataForCountdown.expiryDate).getTime();
+    } else if (isLifetimeProduct) {
+        // For lifetime product with no expiry date set (e.g. freshly activated lifetime from store)
+        // It should not show "Expired". It's perpetually active until a date is set OR it's handled by admin.
+        // Or, we ensure lifetime products from store always get an initial 30-day redeem key.
+        // Assuming lifetime products will have an expiryDate that gets extended.
+        // If no expiryDate, treat as "N/A" or "Active (Lifetime)" instead of triggering expiry.
+        el.textContent = 'Active (Lifetime)';
+        el.style.color = 'var(--success)';
+        return; 
+    }
+
+
+    if (!targetExpiryTime && !isLifetimeProduct) { // Non-lifetime and no expiry means N/A
+        el.textContent = 'N/A';
+        el.style.color = 'rgba(255,255,255,0.6)';
+        return;
+    }
+    
+    const updateDisplayFunc = () => {
+        const now = Date.now();
+        let diff = targetExpiryTime - now;
+
+        if (diff < 0) {
+            if (isLifetimeProduct) {
+                el.textContent = 'Expired - Renew Now!';
+                el.style.color = 'var(--warning)';
+                const cardPanel = el.closest('.active-product-display-panel');
+                if (cardPanel) {
+                    const downloadBtn = cardPanel.querySelector('.active-product-download-btn');
+                    if (downloadBtn) {
+                        const newBtn = downloadBtn.cloneNode(true); // Clone to safely change listeners
+                        newBtn.textContent = 'RENEW NOW';
+                        newBtn.style.backgroundColor = 'var(--warning)';
+                        newBtn.style.color = 'var(--dark)';
+                        newBtn.dataset.productkeyfordownload = ''; // Clear download key
+                        newBtn.onclick = () => openPackageRenewModal(); // Consider passing productDataForCountdown.productFileLinkKey
+                        downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+                    }
+                }
+            } else { // Not lifetime and expired
+                el.textContent = 'Expired!';
+                el.style.color = 'var(--danger)';
+                // The card will be removed when activeDeviceProducts is rebuilt by showDashboardUI
+            }
+            if (el.countdownIntervalId) { clearInterval(el.countdownIntervalId); el.countdownIntervalId = null; }
+            return;
+        }
+
+        const dys = Math.floor(diff / (1000 * 60 * 60 * 24));
+        diff %= (1000 * 60 * 60 * 24);
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
+        diff %= (1000 * 60 * 60);
+        const mins = Math.floor(diff / (1000 * 60));
+        diff %= (1000 * 60);
+        const secs = Math.floor(diff / 1000);
+        
+        el.textContent = `${dys}d ${hrs.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+        el.style.color = 'var(--secondary)';
+    };
+    updateDisplayFunc();
+    el.countdownIntervalId = setInterval(updateDisplayFunc, 1000);
+}
+
+
+  function toggleSidebar() { const sb = document.getElementById('sidebar'), ov = document.getElementById('sidebarOverlay'); sb.classList.toggle('active'); ov.classList.toggle('active'); document.body.style.overflow = sb.classList.contains('active') ? 'hidden' : (dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'); }
+  const modalBg = document.getElementById('modalBg'); const addMoneyBonusMessageEl = document.getElementById('addMoneyBonusMessage'); const confirmBtnAddMoney = document.getElementById('confirmAddMoneyBtn'); const customAmountInputEl = document.getElementById('customAmountInput');
+  function openModal() { if (!currentUser) { alert('Please login first!'); return; } modalBg.style.display = 'flex'; customAmountInputEl.value = ''; confirmBtnAddMoney.disabled = true; addMoneyBonusMessageEl.style.display = 'none'; document.body.style.overflow = 'hidden'; }
+  customAmountInputEl.addEventListener('input', () => { const amount = parseFloat(customAmountInputEl.value); if (!isNaN(amount) && amount >= MIN_ADD_AMOUNT) { confirmBtnAddMoney.disabled = false; selectedAmount = amount; addMoneyBonusMessageEl.style.display = amount >= 100 ? 'flex' : 'none'; } else { confirmBtnAddMoney.disabled = true; selectedAmount = null; addMoneyBonusMessageEl.style.display = 'none'; } });
+  function confirmAdd() { if (selectedAmount === null || selectedAmount < MIN_ADD_AMOUNT) { showGenericError("Invalid Amount", `Please enter an amount greater than or equal to ৳${MIN_ADD_AMOUNT}.`, true); return; } if (!currentUser) { showGenericError("Error", "User not logged in.", true); return; } closeModal(); document.getElementById('paymentOptionsModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  function closeModal() { modalBg.style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; }
+  function closePaymentOptionsModal() { document.getElementById('paymentOptionsModal').style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; }
+
+  function showPaymentGateway(method) {
+    currentPaymentMethod = method;
+    const titleEl = document.getElementById('paymentGatewayTitle');
+    const instructionsEl = document.getElementById('paymentGatewayInstructions');
+    const submitBtn = document.getElementById('submitPaymentTxnBtn');
+    document.getElementById('paymentTransactionIdInput').value = '';
+
+    let instructions = "";
+    let methodTitle = "";
+    const recipientNumber = "01647712206"; 
+    const amountToPay = selectedAmount;
+    const invoiceId = generateRandomCodeForInvoice(10); 
+    let logoUrl = "";
+
+    submitBtn.classList.remove('bkash-style', 'nagad-style');
+
+    switch (method) {
+        case 'bkash':
+            logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.png?alt=media&token=fc1cd24b-930a-4547-8d09-f544ef5d2165";
+            methodTitle = "Bkash Payment";
+            instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId} (KILLERX X OFFICIAL)</strong></p><p><strong>টাকার পরিমাণ: ৳${amountToPay}.00</strong></p><hr><p>*247# ডায়াল করে আপনার BKASH মোবাইল মেনুতে যান অথবা BKASH অ্যাপে যান।</p><p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> <button onclick="copyToClipboard('${recipientNumber}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy</button></p><p>টাকার পরিমাণ: ৳${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার BKASH মোবাইল মেনু পিন লিখুন।</p><p> সবকিছু ঠিক থাকলে, আপনি BKASH থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</p><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> দিন এবং নিচের <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
+            submitBtn.classList.add('bkash-style');
+            break;
+        case 'nagad':
+            logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.jpeg?alt=media&token=98b94d4c-afc8-4830-9842-627100bd8c49";
+            methodTitle = "Nagad Payment";
+            instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId} (KILLERX X OFFICIAL)</strong></p><p><strong>টাকার পরিমাণ: ৳${amountToPay}.00</strong></p><hr><p>*167# ডায়াল করে আপনার NAGAD মোবাইল মেনুতে যান অথবা NAGAD অ্যাপে যান।</p><p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> <button onclick="copyToClipboard('${recipientNumber}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy</button></p><p>টাকার পরিমাণ: ৳${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার NAGAD মোবাইল মেনু পিন লিখুন।</p><p>সবকিছু ঠিক থাকলে, আপনি NAGAD থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</p><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> দিন এবং নিচের <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
+            submitBtn.classList.add('nagad-style');
+            break;
+        case 'rocket':
+            logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitl.jpeg?alt=media&token=c0452c5b-21d5-47d7-8966-adf7f8df07ee";
+            methodTitle = "Rocket Payment";
+            instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId} (KILLERX X OFFICIAL)</strong></p><p><strong>টাকার পরিমাণ: ৳${amountToPay}.00</strong></p><hr><p>*322# ডায়াল করে আপনার ROCKET মোবাইল মেনুতে যান অথবা ROCKET অ্যাপে যান।</p><p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> <button onclick="copyToClipboard('${recipientNumber}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy</button></p><p>টাকার পরিমাণ: ৳${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার ROCKET মোবাইল মেনু পিন লিখুন।</p><p>সবকিছু ঠিক থাকলে, আপনি ROCKET থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</p><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> দিন এবং নিচের <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
+            break;
+    }
+    titleEl.innerHTML = `<img src="${logoUrl}" alt="${method}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 10px; vertical-align: middle;"> ${methodTitle}`;
+    instructionsEl.innerHTML = instructions;
+    document.getElementById('paymentOptionsModal').style.display = 'none';
+    document.getElementById('paymentGatewayModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+  function closePaymentGatewayModal() { document.getElementById('paymentGatewayModal').style.display = 'none'; document.getElementById('paymentOptionsModal').style.display = 'flex'; }
+  async function submitPaymentTransactionId() { if (!currentUser || selectedAmount === null || selectedAmount < MIN_ADD_AMOUNT || !currentPaymentMethod) { showGenericError("Error", "Session expired or invalid data. Please try again.", true); return; } const paymentTxnId = document.getElementById('paymentTransactionIdInput').value.trim(); if (!paymentTxnId) { showGenericError("Input Required", "Please enter the Transaction ID.", true); return; } const submitBtn = document.getElementById('submitPaymentTxnBtn'); submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...'; try { const allTransactionsRef = database.ref('all_transactions/' + paymentTxnId); const snapshot = await allTransactionsRef.once('value'); if (snapshot.exists()) { showGenericError("Duplicate Transaction ID", "This Transaction ID has already been submitted. Please check and try again or contact support if you believe this is an error.", true); submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Transaction ID'; return; } const userTransactionsRef = database.ref('transactions/' + currentUser); const newTransactionRef = userTransactionsRef.push(); const transactionKey = newTransactionRef.key; const transactionData = { amount: selectedAmount, status: "pending_verification", date: new Date().toISOString(), userId: currentUser, paymentMethod: currentPaymentMethod, paymentTransactionId: paymentTxnId, transactionKey: transactionKey }; const allTransactionEntry = { userId: currentUser, amount: selectedAmount, date: new Date().toISOString(), status: "pending_verification", paymentMethod: currentPaymentMethod, originalUserTransactionKey: transactionKey, userEnteredTxnId: paymentTxnId }; const updates = {}; updates['transactions/' + currentUser + '/' + transactionKey] = transactionData; updates['all_transactions/' + paymentTxnId] = allTransactionEntry; await database.ref().update(updates); showGenericSuccess("Submission Successful!", "Your transaction ID has been submitted. Please wait for admin to verify your payment and credit your account. This may take some time.", true); document.getElementById('paymentGatewayModal').style.display = 'none'; document.getElementById('paymentOptionsModal').style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; confirmBtnAddMoney.disabled = true; customAmountInputEl.value = ''; selectedAmount = null; currentPaymentMethod = null; } catch (error) { console.error("Error submitting transaction ID:", error); showGenericError("Submission Failed", "An error occurred: " + error.message + ". Please try again.", true); } finally { if(submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Transaction ID'; } } }
+
+function copyToClipboard(text, buttonElement) {
+    navigator.clipboard.writeText(text).then(() => {
+        const originalHTML = buttonElement.innerHTML;
+        buttonElement.innerHTML = "Copied!";
+        buttonElement.disabled = true;
+        setTimeout(() => {
+            buttonElement.innerHTML = originalHTML;
+            buttonElement.disabled = false;
+        }, 1500);
+    }).catch(err => {
+        console.error("Could not copy text: ", err);
+        alert("Failed to copy. Please copy manually: " + text);
+    });
+}
+
+  function showGenericSuccess(title, message, positionTop = false) {
+    const modal = document.getElementById('genericSuccessModal');
+    document.getElementById('genericSuccessMessage').textContent = message;
+    document.querySelector('#genericSuccessModal h2').innerHTML = `<i class="fas fa-check-circle"></i> ${title}`;
+    modal.style.display = 'flex';
+    if (positionTop) {
+        modal.classList.add('position-top');
+    } else {
+        modal.classList.remove('position-top');
+    }
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGenericSuccessModal() {
+    const modal = document.getElementById('genericSuccessModal');
+    modal.style.display = 'none';
+    modal.classList.remove('position-top');
+    document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+  }
+
+  function showGenericError(title, message, positionTop = false) {
+    const modal = document.getElementById('genericErrorModal');
+    document.getElementById('genericErrorMessage').textContent = message;
+    document.querySelector('#genericErrorModal h2').innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${title}`;
+    modal.style.display = 'flex';
+    if (positionTop) {
+        modal.classList.add('position-top');
+    } else {
+        modal.classList.remove('position-top');
+    }
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGenericErrorModal() {
+    const modal = document.getElementById('genericErrorModal');
+    modal.style.display = 'none';
+    modal.classList.remove('position-top');
+    document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+  }
+
+  function showHistory() { if (!currentUser) return; const hModal = document.getElementById('historyModal'), hList = document.getElementById('historyList'); hList.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading ...</p></div>`; hModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; transactionListener = database.ref('transactions/' + currentUser).orderByChild('date').on('value', s => { const txns = s.val(); hList.innerHTML = ''; if (!txns || Object.keys(txns).length === 0) { hList.innerHTML = `<div class="empty-history"><i class="fas fa-hourglass-half"></i><p>No transactions</p></div>`; return; } Object.entries(txns).map(([id,tx])=>({id,...tx})).sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx => { const el = document.createElement('div'); el.className = `transaction-item status-${tx.status.replace(/\s+/g, '_')}`; const dt = new Date(tx.date); let paymentDetails = ""; if (tx.paymentMethod && tx.paymentTransactionId) { paymentDetails = `<div style="font-size: 11px; color: ${el.classList.contains('status-pending_verification') || el.classList.contains('status-pending') ? 'rgba(45,52,54,0.8)' : 'rgba(255,255,255,0.6)'}; margin-top: 3px; text-transform: capitalize;">Method: ${tx.paymentMethod} | TxnID: ${tx.paymentTransactionId}</div>`; } let statusIcon = 'fa-hourglass-half'; if (tx.status === 'completed') statusIcon = 'fa-check-circle'; else if (tx.status === 'pending_verification') statusIcon = 'fa-user-clock'; else if (tx.status === 'failed' || tx.status === 'cancelled') statusIcon = 'fa-times-circle'; el.innerHTML = `<div class="transaction-left"><div class="transaction-icon"><i class="fas ${statusIcon}"></i></div><div class="transaction-info"><div class="transaction-amount-status"><span class="transaction-amount">${tx.amount} Taka</span><span class="transaction-status" style="${tx.status === 'pending_verification' || tx.status === 'pending' ? 'color: var(--dark); font-weight: 500;' : (tx.status === 'completed' ? 'color: var(--success);' : '')}">${tx.status.replace('_', ' ')}</span></div><div class="transaction-date">${dt.toLocaleDateString()+' '+dt.toLocaleTimeString()}</div>${paymentDetails}</div></div><div class="transaction-right"><i class="fas fa-chevron-right"></i></div>`; hList.appendChild(el); }); }, e => { hList.innerHTML = `<div class="empty-history"><i class="fas fa-exclamation-triangle"></i><p>Failed to load</p></div>`; console.error('History error:', e); }); }
+  function closeHistoryModal() { if (transactionListener&&currentUser) database.ref('transactions/'+currentUser).off('value',transactionListener); transactionListener=null; document.getElementById('historyModal').style.display='none'; document.body.style.overflow= dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';}
+  
+  function showNotifications() {
+    if (!currentUser) return;
+    const modal = document.getElementById('notificationModal');
+    const list = document.getElementById('notificationList');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    list.innerHTML = `<p style="text-align:center;">Loading...</p>`;
+
+    database.ref('notifications/' + currentUser).once('value').then(s => {
+        const data = s.val();
+        if (!data || Object.keys(data).length === 0) {
+            list.innerHTML = '<p style="text-align:center;">No notifications.</p>';
+            return;
+        }
+        list.innerHTML = '';
+        Object.entries(data).map(([id, n]) => ({ id, ...n }))
+            .sort((a, b) => b.timestamp - a.timestamp)
+            .forEach(n => {
+                const dv = document.createElement('div');
+                dv.className = 'transaction-item'; 
+                let detailsHtml = "";
+                if (n.type === "purchase_receipt" && n.details) {
+                    detailsHtml = `
+                        <div class="notification-message-details">
+                            <p><strong>Redeem Code:</strong> ${n.details.redeemCode || 'N/A'}</p>
+                            <p><strong>Product:</strong> ${n.details.productName || 'N/A'}</p>
+                            <p><strong>Duration:</strong> ${n.details.durationDays || 'N/A'} Days</p>
+                            <p><strong>Price Paid:</strong> ${n.details.pricePaid || 0}৳</p>
+                            <p>${n.details.approxExpiryMessage || ''}</p>
+                        </div>`;
+                } else if (n.type === "expiry_alert" && n.details) {
+                     detailsHtml = `
+                        <div class="notification-message-details">
+                            <p><strong>Product:</strong> ${n.details.productName || 'N/A'}</p>
+                        </div>`;
+                }
+
+                dv.innerHTML = `
+                    <div class="transaction-left" style="text-align:left;gap:10px">
+                        <div class="transaction-icon"><i class="fas fa-${n.read ? 'envelope-open' : 'envelope'}"></i></div>
+                        <div class="transaction-info">
+                            <div style="font-size:16px;font-weight:500">${n.message}</div>
+                            ${detailsHtml}
+                            <div style="font-size:12px;color:rgba(255,255,255,0.7); margin-top: 5px;">${new Date(n.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div class="transaction-right" style="opacity:0"></div>`;
+                list.appendChild(dv);
+            });
+    });
+}
+
+  function closeNotificationModal(){document.getElementById('notificationModal').style.display='none';document.body.style.overflow= dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';}
+  function markAllNotificationsRead(){if(!currentUser)return;firebase.database().ref('notifications/'+currentUser).remove().then(()=>{document.getElementById('notifCount').textContent=0;const nl=document.getElementById('notificationList');nl.innerHTML='<p style="text-align:center;color:var(--success)">All marked as read!</p>';setTimeout(()=>showNotifications(),1500)}).catch(e=>{console.error("Error marking all read:",e);alert("Failed to mark all.")})}
+  let refreshInterval=setInterval(()=>{if(!currentUser)return;firebase.database().ref('notifications/'+currentUser).orderByChild('read').equalTo(false).once('value').then(s=>{const n=s.val()||{};document.getElementById('notifCount').textContent=Object.keys(n).length});const hm=document.getElementById('historyModal');if(hm&&hm.style.display==='flex'){firebase.database().ref('transactions/'+currentUser).orderByChild('date').once('value').then(s=>{const hl=document.getElementById('historyList'),tx=s.val();hl.innerHTML='';if(!tx||Object.keys(tx).length===0){hl.innerHTML=`<div class="empty-history"><i class="fas fa-hourglass-half"></i><p>No transactions</p></div>`;return}Object.entries(tx).map(([id,t])=>({id,...t})).sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(t=>{const te=document.createElement('div');te.className=`transaction-item status-${t.status.replace(/\s+/g, '_')}`;const d=new Date(t.date);let pD="";if(t.paymentMethod&&t.paymentTransactionId)pD=`<div style="font-size:11px;color:${te.classList.contains('status-pending_verification')||te.classList.contains('status-pending')?'rgba(45,52,54,0.8)':'rgba(255,255,255,0.6)'};margin-top:3px;text-transform:capitalize;">Method: ${t.paymentMethod} | TxnID: ${t.paymentTransactionId}</div>`;let sI='fa-hourglass-half';if(t.status==='completed')sI='fa-check-circle';else if(t.status==='pending_verification')sI='fa-user-clock';else if(t.status==='failed'||t.status==='cancelled')sI='fa-times-circle';te.innerHTML=`<div class="transaction-left"><div class="transaction-icon"><i class="fas ${sI}"></i></div><div class="transaction-info"><div class="transaction-amount-status"><span class="transaction-amount">${t.amount} Taka</span><span class="transaction-status" style="${t.status==='pending_verification'||t.status==='pending'?'color:var(--dark);font-weight:500;':(t.status==='completed'?'color:var(--success);':'')}">${t.status.replace('_',' ')}</span></div><div class="transaction-date">${d.toLocaleDateString()+' '+d.toLocaleTimeString()}</div>${pD}</div></div><div class="transaction-right"><i class="fas fa-chevron-right"></i></div>`;hl.appendChild(te)})})}},10000);
+  function openHWIDPopup(){if(!currentUser)return;firebase.database().ref('users/'+currentUser).once('value').then(s=>{const ud=s.val()||{},fr=ud.resetFreeUsed===true,m=document.getElementById('hwidResetModal');m.style.display='flex';document.body.style.overflow='hidden';const msg=m.querySelector('.hwid-message'),cb=m.querySelector('.confirm-hwid-btn');if(fr){msg.innerHTML='আপনার ফ্রি HW ID রিসেট সুযোগ শেষ। এখন ৩০০ কয়েন লাগবে। রিসেট করতে চান?';cb.innerHTML='<i class="fas fa-check-circle"></i> RESET (300 Coins)'}else{msg.innerHTML='আপনি প্রথমবার ফ্রিতে HW ID রিসেট করতে পারবেন। রিসেট করতে চান?';cb.innerHTML='<i class="fas fa-check-circle"></i> RESET (Free)'}})}
+  function confirmHWIDReset(){if(!currentUser)return;firebase.database().ref('users/'+currentUser).once('value').then(s=>{const ud=s.val()||{},bl=ud.balance||0,fr=ud.resetFreeUsed===true;if(!fr){firebase.database().ref('users/'+currentUser).update({resetFreeUsed:true, machineId: null}).then(()=>{document.getElementById('infoHardwareId').textContent='N/A';document.getElementById('hwidResetModal').style.display='none';showGenericSuccess("HWID Reset", "Your HWID has been reset successfully.", true)})}else if(bl>=300){firebase.database().ref('users/'+currentUser).update({balance:bl-300, machineId: null}).then(()=>{document.getElementById('infoHardwareId').textContent='N/A';document.getElementById('hwidResetModal').style.display='none';showGenericSuccess("HWID Reset", "Your HWID has been reset. 300 Taka deducted.", true)})}else{document.getElementById('hwidResetModal').style.display='none';showGenericError("Balance Low", `আপনার ব্যালেন্সে HW ID রিসেট করার জন্য পর্যাপ্ত কয়েন (300৳) নেই। আপনার বর্তমান ব্যালেন্স: ${bl}৳।`, true)}})}
+  function openToolsModal(){if(!currentUser){alert('Please login first!');return}const m=document.getElementById('toolsModal'),l=document.getElementById('toolsList');m.style.display='flex';document.body.style.overflow='hidden';l.innerHTML=`<p style="text-align:center;">Loading tools...</p>`;database.ref('Tools').once('value').then(s=>{const d=s.val();l.innerHTML='';if(!d||Object.keys(d).length===0){l.innerHTML='<p style="text-align:center;opacity:0.7">No tools available.</p>';return}Object.entries(d).forEach(([tn,tv])=>{const b=document.createElement('button');let ih='<i class="fas fa-download"></i>';if(tn.toLowerCase().includes('bluestacks'))ih='<i class="fab fa-android"></i>';else if(tn.toLowerCase().includes('free fire'))ih='<i class="fas fa-fire"></i>';else if(tn.toLowerCase().includes('msi'))ih='<i class="fas fa-laptop"></i>';else if(tn.toLowerCase().includes('requirement'))ih='<i class="fas fa-info-circle"></i>';b.innerHTML=`${ih} ${tn}`;b.onclick=()=>handleToolClick(tn,tv);l.appendChild(b)})}).catch(e=>{l.innerHTML=`<p style="text-align:center;color:var(--danger)">Failed to load tools.</p>`;console.error('Failed to load tools:',e)})}
+  function handleToolClick(tn,tv){if(tv&&(tv.startsWith('http://')||tv.startsWith('https://')))window.open(tv,'_blank');else if(tv)alert(`${tn}: ${tv}`);else alert(`No information for ${tn}.`)}
+  function closeToolsModal(){document.getElementById('toolsModal').style.display='none';document.body.style.overflow= dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';}
+
+  function generateRedeemCode(productFileLinkKey, isRenewal = false) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let randomPart = '';
+    for (let i = 0; i < 5; i++) { 
+        randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    
+    let productCodeNamePart = "GENERIC"; 
+    if (productKeyMap[productFileLinkKey] && productKeyMap[productFileLinkKey].renewCodePart) {
+        productCodeNamePart = productKeyMap[productFileLinkKey].renewCodePart;
+    } else { // Fallback if productFileLinkKey is not in productKeyMap directly but in PRODUCT_NAME_IN_REDEEM_CODE_MAP
+        for (const codeKey in PRODUCT_NAME_IN_REDEEM_CODE_MAP) {
+            if (PRODUCT_NAME_IN_REDEEM_CODE_MAP[codeKey] === productFileLinkKey) {
+                productCodeNamePart = codeKey;
+                break;
+            }
+        }
+    }
+    
+    if (isRenewal) {
+        return `KX-${productCodeNamePart}-RENEW-${randomPart}`;
+    } else {
+        return `KX-${productCodeNamePart}-${randomPart}`;
+    }
+  }
+  
+  function generateRandomCodeForInvoice(length = 10) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
+
+  async function redeemCode() {
+    const codeInput = document.getElementById("redeemCodeInput");
+    const code = codeInput.value.trim().toUpperCase(); 
+    if (!code || !currentUser) return;
+
+    const userRef = firebase.database().ref("users/" + currentUser);
+    const purchaseHistoryRef = firebase.database().ref("user_item_purchases/" + currentUser);
+
+    try {
+        const userSnap = await userRef.once("value");
+        let userData = userSnap.val() || {}; 
+
+        const redeemCodeRef = firebase.database().ref("redeemCodes/" + code);
+        const redeemSnapshot = await redeemCodeRef.once("value");
+
+        if (!redeemSnapshot.exists() || redeemSnapshot.val().redeemed) {
+            let failedAttempts = (userData.failedRedeemAttempts || 0) + 1;
+            let updatesForUser = { failedRedeemAttempts: failedAttempts };
+            if (failedAttempts > 3) {
+                updatesForUser.isBlocked = true;
+                await userRef.update(updatesForUser);
+                document.getElementById("redeemErrorText").textContent = "Account blocked due to multiple invalid redeem attempts. Contact admin.";
+                document.getElementById("redeemErrorModal").style.display = "flex";
+                setTimeout(logout, 3000);
+            } else {
+                await userRef.update(updatesForUser);
+                document.getElementById("redeemErrorText").textContent = "কোডটি সঠিক নয় অথবা ইতিমধ্যে ব্যবহৃত হয়েছে।";
+                document.getElementById("redeemErrorModal").style.display = "flex";
+            }
+            return;
+        }
+
+        const redeemData = redeemSnapshot.val();
+        let productFileLinkKey = redeemData.productFileLinkKey; 
+        
+        if (!productFileLinkKey) { 
+            const parts = code.split('-');
+            if (parts.length >= 3 && parts[0] === "KX") {
+                const codeNamePart = parts[1];
+                productFileLinkKey = PRODUCT_NAME_IN_REDEEM_CODE_MAP[codeNamePart];
+            }
+        }
+        
+        if (!productFileLinkKey || !productKeyMap[productFileLinkKey]) {
+            document.getElementById("redeemErrorText").textContent = "Invalid product type in redeem code.";
+            document.getElementById("redeemErrorModal").style.display = "flex";
+            return;
+        }
+
+        let userFirebaseUpdates = { failedRedeemAttempts: 0 };
+        let successMessage = "";
+        let amountAddedForBonus = 0;
+
+        if (redeemData.amount !== undefined && redeemData.amount > 0) { 
+            const reward = redeemData.amount || 0;
+            amountAddedForBonus = reward; 
+            userFirebaseUpdates.balance = (userData.balance || 0) + reward;
+            successMessage = `আপনি সফলভাবে ৳${reward} আপনার ব্যালেন্সে যোগ করেছেন। `;
+        }
+
+        const daysForProduct = parseInt(redeemData.days) || 0;
+        if (daysForProduct > 0) {
+            const currentProductExpiryStr = userData[`${productFileLinkKey} expiredate`]; 
+            let currentProductExpiryTime = 0;
+
+            if (currentProductExpiryStr) {
+                const existingDate = new Date(currentProductExpiryStr);
+                if (existingDate > new Date()) { 
+                    currentProductExpiryTime = existingDate.getTime();
+                } else {
+                    currentProductExpiryTime = Date.now(); 
+                }
+            } else {
+                currentProductExpiryTime = Date.now(); 
+            }
+
+            const newExpiryTime = currentProductExpiryTime + (daysForProduct * 24 * 60 * 60 * 1000);
+            const newExpiryDateISO = new Date(newExpiryTime).toISOString();
+            
+            userFirebaseUpdates[`${productFileLinkKey} expiredate`] = newExpiryDateISO;
+            successMessage += `আপনার "${productKeyMap[productFileLinkKey].displayName}" প্যাকেজের মেয়াদ সফলভাবে ${daysForProduct} দিন বৃদ্ধি করা হয়েছে।`;
+
+            if (redeemData.isLifetimeProductSource === true) {
+                const productInfo = productKeyMap[productFileLinkKey];
+                if (productInfo && productInfo.lifetimeFlag) {
+                    userFirebaseUpdates[productInfo.lifetimeFlag] = true; 
+                    successMessage += ` "${productInfo.displayName} Lifetime" access activated.`;
+                }
+            }
+        }
+        
+        await userRef.update(userFirebaseUpdates);
+
+        const historyEntry = {
+            redeemKeyUsed: code,
+            productName: redeemData.packageName || productKeyMap[productFileLinkKey].displayName,
+            productFileLinkKey: productFileLinkKey,
+            purchaseDate: redeemData.generatedOn || new Date().toISOString(), 
+            originalDurationDays: daysForProduct,
+            pricePaid: redeemData.purchasedPrice || 0,
+            redeemedOn: new Date().toISOString() 
+        };
+        await purchaseHistoryRef.child(code).set(historyEntry); 
+        
+        if (amountAddedForBonus > 0) {
+            await handleBonusAfterDeposit(currentUser, amountAddedForBonus);
+        }
+
+        await redeemCodeRef.update({
+            redeemed: true,
+            redeemedBy: currentUser,
+            redeemedDate: new Date().toISOString()
+        });
+
+        document.getElementById("redeemRewardText").textContent = successMessage.trim() || "রিডিম সফল হয়েছে!";
+        document.getElementById("redeemSuccessModal").style.display = "flex";
+        codeInput.value = "";
+
+    } catch (error) {
+        console.error("Redeem code processing error:", error);
+        document.getElementById("redeemErrorText").textContent = "রিডিম কোড প্রক্রিয়া করতে সমস্যা হয়েছে: " + error.message;
+        document.getElementById("redeemErrorModal").style.display = "flex";
+    }
+}
+
+  
+  function openPackageRenewModal(){
+      if(!currentUser){alert('Please login first!');return}
+      document.getElementById("packageRenewModal").style.display="flex";
+      document.body.style.overflow='hidden';
+      loadPackageRenewItems(); 
+  }
+  function closePackageRenewModal(){
+      document.getElementById('packageRenewModal').style.display='none';
+      document.body.style.overflow= dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+  }
+
+  async function loadPackageRenewItems(){
+      const listEl = document.getElementById("packageRenewItemsList");
+      listEl.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading packages...</p></div>`;
+      firebasePackageOffers = []; 
+
+      try {
+        const userSnap = await database.ref('users/' + currentUser).once('value');
+        const userData = userSnap.val();
+        
+        if (!userData) {
+            listEl.innerHTML = "<div class='empty-history'><i class='fas fa-exclamation-triangle'></i><p>User data not found.</p></div>";
+            return;
+        }
+        
+        listEl.innerHTML = ""; 
+        let foundRenewableForDisplay = false;
+
+        const renewalDurations = [
+            { days: 30, months: 1 }, { days: 60, months: 2 }, { days: 90, months: 3 },
+            { days: 120, months: 4 }, { days: 150, months: 5 }
+        ];
+
+        for (const pKey in productKeyMap) {
+            const productInfo = productKeyMap[pKey];
+            if (!productInfo.lifetimeFlag || !productInfo.basePricePer30DaysRenew) continue; 
+
+            if (userData[productInfo.lifetimeFlag] === true) {
+                foundRenewableForDisplay = true;
+                renewalDurations.forEach(duration => {
+                    const offer = {
+                        firebaseKey: `${pKey}_renew_${duration.days}d`, 
+                        title: `${productInfo.displayName} - ${duration.days} Days Renewal`,
+                        days: duration.days,
+                        price: productInfo.basePricePer30DaysRenew * duration.months,
+                        description: `Extend your ${productInfo.displayName} subscription by ${duration.days} days.`,
+                        renewsProductFileLinkKey: pKey 
+                    };
+                    firebasePackageOffers.push(offer);
+                    const card = createPackageCard(offer);
+                    listEl.appendChild(card);
+                });
+            }
+        }
+
+        if (!foundRenewableForDisplay){
+            listEl.innerHTML = "<div class='empty-history'><i class='fas fa-box'></i><p>No products eligible for renewal based on your lifetime access.</p></div>";
+        }
+
+      } catch (error) {
+          console.error("Error loading package renewal items:", error);
+          listEl.innerHTML = "<div class='empty-history'><i class='fas fa-exclamation-triangle'></i><p>Could not load packages. Please try again later.</p></div>";
+          firebasePackageOffers = []; 
+      }
+  }
+
+  function createPackageCard(p) { 
+      const card = document.createElement("div");
+      card.className = "package-item";
+      card.onclick = () => openPackageDetailModal(p);
+      card.innerHTML = `
+          <div class="package-info">
+              <div class="package-title">${p.title}</div>
+              <div class="package-duration">${p.days} Days Extension</div>
+          </div>
+          <div class="package-price">${p.price > 0 ? p.price + '৳' : 'FREE'}</div>`;
+      return card;
+  }
+
+
+  function openPackageDetailModal(p){selectedPackageForPurchase=p;const m=document.getElementById('packageDetailModal');document.getElementById('detailPackageTitle').textContent=p.title;document.getElementById('detailPackagePrice').textContent=`Price: ${p.price > 0 ? p.price + '৳' : 'FREE'}`;document.getElementById('detailPackageDescription').textContent= p.description;document.getElementById('buyPackageButton').onclick=()=>confirmRenewPurchase(p);m.style.display='flex';m.classList.add('position-top');document.body.style.overflow='hidden'}
+  function closePackageDetailModal(){const m = document.getElementById('packageDetailModal'); m.style.display='none';m.classList.remove('position-top'); }
+  function confirmRenewPurchase(p){if(!currentUser){alert('Login first!');return}selectedPackageForPurchase=p;const m=document.getElementById('renewConfirmationModal');document.getElementById('confirmRenewMessage').innerHTML=`আপনি কি নিশ্চিত যে আপনি **${p.title}** এই প্যাকেজটি **${p.price > 0 ? p.price + '৳' : 'FREE'}** দিয়ে কিনতে চান?`;document.getElementById('confirmRenewFinalButton').onclick=()=>executeRenewPurchase(p);m.style.display='flex'; m.classList.add('position-top'); document.getElementById('packageDetailModal').style.display='none'; document.body.style.overflow='hidden';}
+  function closeRenewConfirmationModal(){const m = document.getElementById('renewConfirmationModal'); m.style.display='none'; m.classList.remove('position-top'); document.body.style.overflow= dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';}
+  
+  
+  async function executeRenewPurchase(pkgData){ 
+    if(!currentUser || !pkgData || !pkgData.renewsProductFileLinkKey){ 
+        showGenericError("Purchase Failed", "Invalid session or package data.", true);
+        closeRenewConfirmationModal();
+        return;
+    }
+    closeRenewConfirmationModal();
+    const userRef = firebase.database().ref('users/' + currentUser);
+
+    try {
+        const userSnap = await userRef.once('value');
+        const userData = userSnap.val();
+        const currentBalance = userData.balance || 0;
+        const packagePrice = Number(pkgData.price) || 0;
+
+        if (currentBalance < packagePrice) {
+             showGenericError("Insufficient Balance", `আপনার ব্যালেন্সে ${pkgData.title} কেনার জন্য পর্যাপ্ত (${packagePrice}৳) নেই। আপনার বর্তমান ব্যালেন্স: ${currentBalance}৳।`, true);
+             return;
+        }
+        
+        let firebaseUserUpdates = {}; 
+        if (packagePrice > 0) { 
+            firebaseUserUpdates.balance = currentBalance - packagePrice;
+        }
+
+        const redeemCodeValue = generateRedeemCode(pkgData.renewsProductFileLinkKey, true); 
+        const redeemCodeDetails = {
+            code: redeemCodeValue,
+            days: pkgData.days,
+            amount: 0, 
+            redeemed: false,
+            generatedFor: currentUser,
+            generatedOn: new Date().toISOString(),
+            purchasedPrice: packagePrice,
+            packageName: pkgData.title, 
+            productFileLinkKey: pkgData.renewsProductFileLinkKey, 
+            originalPackageTitle: pkgData.title, 
+            originalPackageDays: pkgData.days,
+            isRenewal: true,
+            isLifetimeProductSource: true // Since this is a renewal for a lifetime user
+        };
+        
+        await database.ref('redeemCodes/' + redeemCodeValue).set(redeemCodeDetails);
+        
+        if (Object.keys(firebaseUserUpdates).length > 0) { 
+            await userRef.update(firebaseUserUpdates);
+             animatePoints(currentBalance, firebaseUserUpdates.balance, 1000);
+        }
+        
+        let approxNewExpiryDate = "N/A";
+        const currentProductExpiryStr = userData[`${pkgData.renewsProductFileLinkKey} expiredate`];
+        let currentProductExpiryTime = Date.now(); 
+        if (currentProductExpiryStr) {
+            const existingDate = new Date(currentProductExpiryStr);
+            if (existingDate > new Date()) { 
+                currentProductExpiryTime = existingDate.getTime();
+            }
+        }
+        approxNewExpiryDate = new Date(currentProductExpiryTime + (pkgData.days * 24 * 60 * 60 * 1000)).toLocaleDateString();
+
+        await sendNotificationAfterPurchase(currentUser, {
+            redeemCode: redeemCodeValue,
+            productName: productKeyMap[pkgData.renewsProductFileLinkKey].displayName,
+            durationDays: pkgData.days,
+            pricePaid: packagePrice,
+            approxExpiryDateIfRedeemedNow: approxNewExpiryDate,
+            productFileLinkKeyForNotification: pkgData.renewsProductFileLinkKey
+        });
+
+        showGenericSuccess("Purchase Successful!", "Check your notifications for the redeem code and details.", true);
+        closePackageRenewModal(); 
+        
+    } catch(e) {
+        console.error("Package purchase/renewal failed:", e);
+        showGenericError("Purchase Error", "কেনাকাটা সম্পূর্ণ করতে সমস্যা হয়েছে: " + e.message, true);
+    }
+}
+
+  function copyRedeemCode(){const el=document.getElementById('generatedRedeemCode'); if(!el) return; const c=el.textContent;navigator.clipboard.writeText(c).then(()=>{const ot=el.textContent;el.textContent="Copied!";setTimeout(()=>el.textContent=ot,1500)}).catch(e=>{console.error('Failed to copy:',e);alert('Failed to copy. Manual: '+c)})}
+  function closePurchaseSuccessModal(){
+      const m=document.getElementById('purchaseSuccessModal'); 
+      m.style.display='none';
+      m.classList.remove('position-top');
+      if (document.getElementById('generalStoreModal').style.display === 'flex' || 
+          document.getElementById('packageRenewModal').style.display === 'flex' ||
+          document.getElementById('toolsModal').style.display === 'flex') {
+      } else {
+          document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+      }
+  }
+
+  async function openDownloadPanelModal(productKeyForDownload) { 
+    if (!currentUser) { alert("Please login first!"); return; }
+
+    const modal = document.getElementById('downloadPanelModal');
+    const buttonsContainer = document.getElementById('downloadPanelButtonsContainer');
+    const messageEl = document.getElementById('downloadPanelMessage');
+    const titleEl = document.getElementById('downloadPanelTitle');
+    
+    buttonsContainer.querySelectorAll('button').forEach(btn => btn.style.display = 'none');
+    messageEl.style.display = 'none';
+    
+    let targetProductKey = productKeyForDownload; 
+
+    if (targetProductKey && Object.values(productKeyMap).find(p => p.downloadKey === targetProductKey)) { 
+        const productInfo = Object.values(productKeyMap).find(p => p.downloadKey === targetProductKey);
+        titleEl.innerHTML = `<i class="fas fa-desktop"></i> Download ${productInfo.displayName}`;
+    } else { 
+        if (activeDeviceProducts.length > 0) {
+            let bestProduct = activeDeviceProducts[0]; // Default to the first active product
+            // Prioritize non-expired or lifetime products for default download link
+            const activeNowOrLifetime = activeDeviceProducts.filter(p => p.isLifetime || (p.expiryDate && new Date(p.expiryDate) > new Date()));
+            if (activeNowOrLifetime.length > 0) {
+                 bestProduct = activeNowOrLifetime[0]; // First active or lifetime
+            }
+
+            targetProductKey = bestProduct.productTypeForDownload; 
+            titleEl.innerHTML = `<i class="fas fa-desktop"></i> Download ${bestProduct.productName}`;
+        } else {
+            targetProductKey = null;
+            titleEl.innerHTML = `<i class="fas fa-desktop"></i> Download Panel`;
+        }
+    }
+    
+    let buttonToShow = null;
+    if (targetProductKey) {
+        buttonToShow = buttonsContainer.querySelector(`button[data-productkey="${targetProductKey}"]`);
+    }
+
+    if (buttonToShow) {
+        buttonToShow.style.display = 'flex'; 
+    } else {
+        const displayProductName = targetProductKey && Object.values(productKeyMap).find(p=>p.downloadKey === targetProductKey) ? Object.values(productKeyMap).find(p=>p.downloadKey === targetProductKey).displayName : "your current products";
+        messageEl.textContent = `No specific panel download link configured for ${displayProductName}.`;
+        messageEl.style.display = 'block';
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDownloadPanelModal() {
+    document.getElementById('downloadPanelModal').style.display = 'none';
+    document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+  }
+  
+  async function downloadProductPanel(productDownloadKey) { 
+      if (!currentUser || !productDownloadKey) return;
+      try {
+          const linkSnap = await database.ref(`downloadLinks/${productDownloadKey}`).once('value');
+          if (linkSnap.exists() && linkSnap.val()) {
+              window.open(linkSnap.val(), '_blank');
+          } else {
+              const productName = Object.values(productKeyMap).find(p => p.downloadKey === productDownloadKey)?.displayName || productDownloadKey;
+              alert(`Download link for ${productName} not found.`);
+          }
+      } catch (error) {
+          console.error("Error fetching download link:", error);
+          alert("Could not fetch download link. Please try again.");
+      }
+  }
+
+  function openHelpline() {
+      window.open('https://wa.me/8801889221262', '_blank'); 
+  }
+
+
+  function openGeneralStoreModal() {
+      if (!currentUser) { alert('Please login first!'); return; }
+      document.getElementById("generalStoreModal").style.display = "flex";
+      document.body.style.overflow = 'hidden';
+      loadGeneralStoreProducts();
+  }
+
+  function closeGeneralStoreModal() {
+      document.getElementById('generalStoreModal').style.display = 'none';
+      document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+  }
+
+  async function loadGeneralStoreProducts() {
+      const productListEl = document.getElementById("generalStoreProductList");
+      const categoryFilterEl = document.getElementById("generalStoreCategoryFilter");
+      productListEl.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading products...</p></div>`;
+
+      try {
+          const snapshot = await database.ref('storeProducts').once('value');
+          const productsData = snapshot.val();
+          allStoreProducts = [];
+          const categories = new Set();
+          categories.add("All Categories"); 
+
+          if (productsData) {
+              Object.keys(productsData).forEach(key => {
+                  const product = productsData[key];
+                  product.firebaseKey = key; 
+                  product.productFileLinkKey = getProductFileLinkKeyFromCategory(product.category);
+
+                  if (product.title && typeof product.price === 'number' && product.productFileLinkKey && product.productValidity) {
+                    allStoreProducts.push(product);
+                    if (product.category) { 
+                        categories.add(product.category.trim());
+                    }
+                  } else {
+                    console.warn("Skipping incomplete or unmappable product data from store:", key, product);
+                  }
+              });
+          }
+
+          categoryFilterEl.innerHTML = ''; 
+          categories.forEach(category => {
+              const option = document.createElement('option');
+              option.value = category === "All Categories" ? "" : category;
+              option.textContent = category.replace(/_/g, " "); 
+              categoryFilterEl.appendChild(option);
+          });
+
+          displayFilteredStoreProducts(); 
+
+      } catch (error) {
+          console.error("Error loading general store products:", error);
+          productListEl.innerHTML = `<div class="empty-history"><i class="fas fa-exclamation-triangle"></i><p>Could not load store products.</p></div>`;
+      }
+  }
+
+  function displayFilteredStoreProducts() {
+    const productListEl = document.getElementById("generalStoreProductList");
+    const selectedCategory = document.getElementById("generalStoreCategoryFilter").value;
+    const searchTerm = document.getElementById("generalStoreSearchInput").value.toLowerCase();
+    productListEl.innerHTML = "";
+
+    const filteredProducts = allStoreProducts.filter(product => {
+        const matchesCategory = !selectedCategory || (product.category && product.category.trim() === selectedCategory);
+        const matchesSearch = !searchTerm ||
+                              (product.title && product.title.toLowerCase().includes(searchTerm)) ||
+                              (product.description && product.description.toLowerCase().includes(searchTerm));
+        return matchesCategory && matchesSearch;
+    });
+
+    if (filteredProducts.length === 0) {
+        productListEl.innerHTML = `<div class="empty-history"><i class="fas fa-box-open"></i><p>No products match your criteria.</p></div>`;
+        return;
+    }
+
+    filteredProducts.forEach(product => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'general-store-product-item';
+        
+        let validityText = "N/A";
+        if (product.productValidity) {
+            if (product.productValidity.toLowerCase() === "lifetime") {
+                validityText = "Lifetime (30-day active cycles)";
+            } else {
+                validityText = product.productValidity.replace(/_/g, " ").replace(/s$/, "s"); 
+            }
+        }
+
+        itemEl.innerHTML = `
+            <img src="${product.imageUrl || 'https://via.placeholder.com/150?text=No+Image'}" alt="${product.title || 'Product'}">
+            <h3 class="product-title">${product.title || 'Unnamed Product'}</h3>
+            <p class="product-description">${product.description || 'No description available.'}</p>
+            <p class="product-validity">Validity: ${validityText}</p> 
+            <p class="product-price">${product.price || 0}৳</p>
+            <button class="buy-item-button">
+                <i class="fas fa-shopping-cart"></i> Buy Now
+            </button>
+        `;
+        itemEl.querySelector('.buy-item-button').addEventListener('click', () => confirmGeneralStoreItemPurchase(product));
+        productListEl.appendChild(itemEl);
+    });
+}
+
+
+  function confirmGeneralStoreItemPurchase(productData) {
+    if (!currentUser) { alert('Please login first!'); return; }
+    currentGeneralStoreItemForPurchase = productData;
+    const modal = document.getElementById('generalStoreItemPurchaseConfirmationModal');
+    document.getElementById('generalStoreItemConfirmImage').innerHTML = `<img src="${productData.imageUrl || 'https://via.placeholder.com/100?text=Item'}" alt="${productData.title || 'Product'}">`;
+    
+    let mainMessage = `Are you sure you want to buy <strong>${productData.title}</strong> for <strong>${productData.price}৳</strong>?`;
+    document.getElementById('generalStoreItemConfirmMessage').innerHTML = mainMessage;
+
+    const additionalMsgEl = document.getElementById('generalStoreItemConfirmAdditionalMessage');
+    additionalMsgEl.style.display = 'none'; 
+    additionalMsgEl.textContent = '';
+    
+    document.getElementById('confirmGeneralStoreItemFinalButton').onclick = () => executeGeneralStoreItemPurchase(productData);
+    modal.style.display = 'flex';
+    modal.classList.add('position-top');
+    document.body.style.overflow = 'hidden';
+}
+
+function parseProductValidityToDays(validityString) {
+    if (!validityString) return 0;
+    const lowerVal = validityString.toLowerCase().trim();
+    if (lowerVal === "lifetime") return 30; 
+    
+    const match = lowerVal.match(/(\d+)[_ ]?(day|month|year)s?/);
+    if (match) {
+        const num = parseInt(match[1]);
+        const unit = match[2];
+        if (unit === "month") return num * 30;
+        if (unit === "day") return num;
+        if (unit === "year") return num * 365; 
+    }
+    return 0; 
+}
+
+
+  function closeGeneralStoreItemPurchaseConfirmationModal() {
+      const modal = document.getElementById('generalStoreItemPurchaseConfirmationModal');
+      modal.style.display = 'none';
+      modal.classList.remove('position-top');
+      currentGeneralStoreItemForPurchase = null;
+      if (document.getElementById('generalStoreModal').style.display !== 'flex') {
+           document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+      }
+  }
+
+  async function executeGeneralStoreItemPurchase(productData) {
+    if (!currentUser || !productData || !productData.productFileLinkKey) { 
+        showGenericError("Purchase Failed", "Invalid session or product data. Cannot determine target product.", true);
+        closeGeneralStoreItemPurchaseConfirmationModal();
+        return;
+    }
+    closeGeneralStoreItemPurchaseConfirmationModal();
+
+    const userRef = database.ref('users/' + currentUser);
+    try {
+        const snapshot = await userRef.once('value');
+        const userData = snapshot.val();
+        const currentBalance = userData.balance || 0;
+        const itemPrice = Number(productData.price) || 0;
+
+        if (currentBalance >= itemPrice) {
+            const userUpdates = { balance: currentBalance - itemPrice }; 
+
+            let redeemCodeDays = parseProductValidityToDays(productData.productValidity);
+            const isLifetimeStoreProduct = productData.productValidity && productData.productValidity.toLowerCase() === "lifetime";
+            
+            const newRedeemCodeValue = generateRedeemCode(productData.productFileLinkKey, false); 
+            const newRedeemCodeData = {
+                code: newRedeemCodeValue,
+                days: redeemCodeDays, 
+                amount: 0, 
+                redeemed: false,
+                generatedFor: currentUser,
+                generatedOn: new Date().toISOString(),
+                purchasedPrice: itemPrice,
+                packageName: productData.title, 
+                productFileLinkKey: productData.productFileLinkKey, 
+                isLifetimeProductSource: isLifetimeStoreProduct, 
+                originalPackageTitle: productData.title, 
+                originalPackageDays: redeemCodeDays,
+                isRenewal: false      
+            };
+            await database.ref('redeemCodes/' + newRedeemCodeValue).set(newRedeemCodeData);
+            await userRef.update(userUpdates); 
+            animatePoints(currentBalance, userUpdates.balance, 1000); 
+            
+            let approxNewExpiryDate = "N/A";
+            const currentProductExpiryStr = userData[`${productData.productFileLinkKey} expiredate`];
+            let currentProductExpiryTime = Date.now(); 
+            if (currentProductExpiryStr) {
+                const existingDate = new Date(currentProductExpiryStr);
+                if (existingDate > new Date()) { 
+                    currentProductExpiryTime = existingDate.getTime();
+                }
+            }
+            approxNewExpiryDate = new Date(currentProductExpiryTime + (redeemCodeDays * 24 * 60 * 60 * 1000)).toLocaleDateString();
+
+            await sendNotificationAfterPurchase(currentUser, {
+                redeemCode: newRedeemCodeValue,
+                productName: productKeyMap[productData.productFileLinkKey].displayName,
+                durationDays: redeemCodeDays,
+                pricePaid: itemPrice,
+                approxExpiryDateIfRedeemedNow: approxNewExpiryDate,
+                productFileLinkKeyForNotification: productData.productFileLinkKey
+            });
+
+            showGenericSuccess("Purchase Successful!", "Check your notifications for the redeem code and details.", true);
+            
+            document.getElementById('purchaseSuccessModal').style.display = 'none';
+            document.getElementById('purchaseSuccessModal').classList.remove('position-top');
+
+
+        } else {
+            showGenericError("Insufficient Balance", `You do not have enough balance (৳${itemPrice}) to purchase ${productData.title}. Your current balance is ৳${currentBalance}.`, true);
+        }
+    } catch (error) {
+        console.error("General store item purchase failed:", error);
+        showGenericError("Purchase Error", "Could not complete the purchase: " + error.message, true);
+    }
+}
+
+
+  function openEditProfileModal() {
+    if (!currentUser) { alert("Please login first!"); return; }
+    const modal = document.getElementById('editProfileModal');
+    document.getElementById('editProfileCurrentUserId').value = currentUser.toUpperCase();
+    document.getElementById('editProfileNewPassword').value = '';
+    document.getElementById('editProfileConfirmPassword').value = '';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'none';
+    document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+  }
+
+  async function handleProfileChanges() {
+    if (!currentUser) { return; }
+
+    const newPassword = document.getElementById('editProfileNewPassword').value;
+    const confirmPassword = document.getElementById('editProfileConfirmPassword').value;
+    const PROFILE_CHANGE_FEE = 5; 
+
+    if (!newPassword || !confirmPassword) { 
+        showGenericError("No Changes", "Please enter and confirm a new password.", true);
+        return;
+    }
+    if (newPassword.length < 6) {
+        showGenericError("Password Too Short", "New password must be at least 6 characters.", true);
+        return;
+    }
+    if (newPassword !== confirmPassword) {
+        showGenericError("Password Mismatch", "New passwords do not match.", true);
+        return;
+    }
+
+    const userRef = database.ref('users/' + currentUser);
+    try {
+        const snapshot = await userRef.once('value');
+        const userData = snapshot.val();
+        const currentBalance = userData.balance || 0;
+
+        if (currentBalance < PROFILE_CHANGE_FEE) {
+            showGenericError("Insufficient Balance", `You need ${PROFILE_CHANGE_FEE} Taka to change your password. Your current balance is ${currentBalance} Taka.`, true);
+            return;
+        }
+
+        const newBalance = currentBalance - PROFILE_CHANGE_FEE;
+        const updates = {
+            password: newPassword,
+            balance: newBalance
+        };
+
+        await userRef.update(updates);
+        animatePoints(currentBalance, newBalance, 1000); 
+
+        showGenericSuccess("Password Changed", `Your password has been changed successfully. ${PROFILE_CHANGE_FEE} Taka has been deducted from your balance.`, true);
+        closeEditProfileModal();
+        
+
+    } catch (error) {
+        console.error("Error handling profile changes:", error);
+        showGenericError("Error", "Could not change your password: " + error.message, true);
+    }
+  }
+
+  function confirmDeleteAccountRequest() {
+      if (!currentUser) return;
+      document.getElementById('deleteAccountConfirmationModal').style.display = 'flex';
+      document.getElementById('editProfileModal').style.display = 'none'; 
+  }
+  function closeDeleteAccountConfirmationModal() {
+      const modal = document.getElementById('deleteAccountConfirmationModal');
+      modal.style.display = 'none';
+      if (document.getElementById('editProfileModal').style.display === 'flex' || 
+          document.getElementById('generalStoreModal').style.display === 'flex' ||
+          document.getElementById('packageRenewModal').style.display === 'flex' ||
+          document.getElementById('downloadPanelModal').style.display === 'flex') {
+          // Do not reset body overflow if another modal is active
+      } else if (dashboardPanel.style.display === 'flex') {
+          document.body.style.overflow = 'auto';
+      } else {
+          document.body.style.overflow = 'hidden'; // Default to hidden if no other main panel is active
+      }
+  }
+  async function executeDeleteAccountRequest() {
+      if (!currentUser) { return; }
+      closeDeleteAccountConfirmationModal();
+      showAuthStatusPopup("Submitting delete request...");
+
+      try {
+          const requestRef = database.ref('deleteAccountRequests/' + currentUser);
+          await requestRef.set({
+              requestedAt: firebase.database.ServerValue.TIMESTAMP,
+              status: "pending_deletion"
+          });
+          hideAuthStatusPopup();
+          showGenericSuccess("Request Submitted", "Your account deletion request has been submitted. It will be processed by an administrator. You will now be logged out.", true);
+          setTimeout(() => {
+              logout(); 
+          }, 3000);
+
+      } catch (error) {
+          hideAuthStatusPopup();
+          console.error("Error submitting delete account request:", error);
+          showGenericError("Error", "Could not submit your deletion request: " + error.message, true);
+      }
+  }
+
+  const bonusMilestones = [{added:0,bonusPayout:0,currency:"৳"},{added:100,bonusPayout:20,currency:"৳"},{added:500,bonusPayout:100,currency:"৳"},{added:1000,bonusPayout:250,currency:"৳"},{added:3000,bonusPayout:500,currency:"৳"},{added:5000,bonusPayout:1000,currency:"৳"}]; bonusMilestones.sort((a,b)=>a.added-b.added);
+  function initializeBonusSystemUI(){const pb=document.querySelector('.bonus-progress-bar');if(!pb)return;pb.innerHTML='';bonusMilestones.forEach(m=>{const i=document.createElement('div');i.classList.add('milestone-item');i.id=`milestone-${m.added}`;i.innerHTML=`<div class="milestone-marker"><i class="fas fa-lock"></i><span>${m.currency}${m.added}</span></div><span class="milestone-bonus-text">বোনাস ${m.currency}${m.bonusPayout}</span>`;pb.appendChild(i)})}
+  function displayBonusSystem(ud){ if(!document.querySelector('.bonus-system-container'))return; const ta=ud.totalAddedForBonus||0,ab=ud.accumulatedBonus||0,rb=ud.recentBonusAmount||0; document.getElementById('totalAddedForBonusDisplay').textContent=`৳${ta.toLocaleString()}`; document.getElementById('accumulatedBonusDisplay').textContent=`৳${ab.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`; document.getElementById('recentBonusDisplay').textContent=`৳${rb.toLocaleString()}`; let nmf=false;document.getElementById('nextBonusMetaDisplay').textContent='সম্পন্ন'; bonusMilestones.forEach(m=>{ const me=document.getElementById(`milestone-${m.added}`); if(me){ if(ta>=m.added){me.classList.add('unlocked');me.querySelector('.milestone-marker i').classList.replace('fa-lock','fa-unlock-alt')} else{me.classList.remove('unlocked');me.querySelector('.milestone-marker i').classList.replace('fa-unlock-alt','fa-lock'); if(!nmf){document.getElementById('nextBonusMetaDisplay').textContent=`৳${m.added.toLocaleString()}`;nmf=true}} } }); const cbBtn=document.querySelector('.claim-bonus-btn');if(cbBtn)cbBtn.disabled=ab<=0 }
+  async function handleBonusAfterDeposit(userId, amountJustDeposited) { const userRef = database.ref('users/' + userId); try { const snapshot = await userRef.once('value'); let userData = snapshot.val() || {}; userData.totalAddedForBonus = userData.totalAddedForBonus || 0; userData.accumulatedBonus = userData.accumulatedBonus || 0; userData.lastBonusMilestoneAchieved = userData.lastBonusMilestoneAchieved !== undefined ? userData.lastBonusMilestoneAchieved : -1; userData.recentBonusAmount = userData.recentBonusAmount || 0; const newTotalAddedForBonus = userData.totalAddedForBonus + amountJustDeposited; let bonusAmountNewlyEarnedThisDeposit = 0; let highestMilestoneAchievedInThisDepositValue = userData.lastBonusMilestoneAchieved; for (const currentMilestone of bonusMilestones) { if (newTotalAddedForBonus >= currentMilestone.added) { highestMilestoneAchievedInThisDepositValue = currentMilestone.added; } else { break; } } let totalPayoutAtNewHighest = 0; const newHighestMilestoneData = bonusMilestones.find(m => m.added === highestMilestoneAchievedInThisDepositValue); if (newHighestMilestoneData) { totalPayoutAtNewHighest = newHighestMilestoneData.bonusPayout; } let totalPayoutAtOldRecorded = 0; const oldRecordedMilestoneData = bonusMilestones.find(m => m.added === userData.lastBonusMilestoneAchieved); if (oldRecordedMilestoneData) { totalPayoutAtOldRecorded = oldRecordedMilestoneData.bonusPayout; } bonusAmountNewlyEarnedThisDeposit = totalPayoutAtNewHighest - totalPayoutAtOldRecorded; if (bonusAmountNewlyEarnedThisDeposit < 0) { bonusAmountNewlyEarnedThisDeposit = 0; } const updates = { totalAddedForBonus: newTotalAddedForBonus, accumulatedBonus: userData.accumulatedBonus + bonusAmountNewlyEarnedThisDeposit, lastBonusMilestoneAchieved: highestMilestoneAchievedInThisDepositValue, recentBonusAmount: bonusAmountNewlyEarnedThisDeposit > 0 ? bonusAmountNewlyEarnedThisDeposit : userData.recentBonusAmount }; if (bonusAmountNewlyEarnedThisDeposit > 0 || amountJustDeposited > 0) { await userRef.update(updates); } } catch (error) { console.error("Error in handleBonusAfterDeposit:", error); } }
+  async function claimBonus(){ if(!currentUser)return; const ur=database.ref('users/'+currentUser); try{ const s=await ur.once('value'),ud=s.val(); if(ud&&ud.accumulatedBonus>0){ const cb=ud.balance||0,btc=ud.accumulatedBonus; await ur.update({balance:cb+btc,accumulatedBonus:0,recentBonusAmount:0}); animatePoints(cb, cb+btc, 1000); showGenericSuccess("Bonus Claimed!",`৳${btc.toLocaleString()} বোনাস আপনার মূল ব্যালেন্সে যোগ করা হয়েছে!`, true); }else { showGenericError("No Bonus", "আপনার সংগ্রহ করার মতো কোনো বোনাস নেই।", true); } }catch(e){console.error("Error claiming bonus:",e); showGenericError("Claim Failed", "বোনাস সংগ্রহ করতে সমস্যা হয়েছে।", true)} }
+
+  function showProductHistoryModal() {
+    if (!currentUser) return;
+    const historyModal = document.getElementById('productHistoryModal');
+    const historyListEl = document.getElementById('productHistoryList');
+    historyListEl.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading history...</p></div>`;
+    historyModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    const historyRef = database.ref('user_item_purchases/' + currentUser).orderByChild('purchaseDate');
+    historyRef.once('value', snapshot => {
+        const historyData = snapshot.val();
+        historyListEl.innerHTML = '';
+        if (!historyData || Object.keys(historyData).length === 0) {
+            historyListEl.innerHTML = `<div class="empty-history"><i class="fas fa-box-open"></i><p>No product purchase history found.</p></div>`;
+            return;
+        }
+
+        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        let hasVisibleItems = false;
+
+        const sortedHistory = Object.entries(historyData)
+            .map(([key, value]) => ({ ...value, id: key })) 
+            .sort((a, b) => new Date(b.purchaseDate || b.generatedOn || b.redeemedOn) - new Date(a.purchaseDate || a.generatedOn || a.redeemedOn)); 
+
+
+        sortedHistory.forEach(item => {
+            const itemDate = item.redeemedOn || item.purchaseDate || item.generatedOn; 
+            const purchaseTimestamp = new Date(itemDate).getTime();
+
+            if (purchaseTimestamp >= thirtyDaysAgo) {
+                hasVisibleItems = true;
+                const itemEl = document.createElement('div');
+                itemEl.className = 'product-history-item';
+                const displayProductName = item.productName || (item.productFileLinkKey && productKeyMap[item.productFileLinkKey] ? productKeyMap[item.productFileLinkKey].displayName : 'N/A Product');
+                
+                let dateToShow = item.redeemedOn ? new Date(item.redeemedOn).toLocaleString() : (item.purchaseDate ? new Date(item.purchaseDate).toLocaleString() : new Date(item.generatedOn).toLocaleString());
+                let dateLabel = item.redeemedOn ? "Redeemed:" : (item.purchaseDate ? "Purchased:" : "Generated:");
+
+
+                itemEl.innerHTML = `
+                    <p><span class="history-label">Product:</span> <span class="history-value">${displayProductName}</span></p>
+                    <p><span class="history-label">Redeem Code:</span> <span class="history-value">${item.redeemKeyUsed || item.id || item.code}</span></p>
+                    <p><span class="history-label">${dateLabel}</span> <span class="history-value">${dateToShow}</span></p>
+                    ${item.originalDurationDays ? `<p><span class="history-label">Duration:</span> <span class="history-value">${item.originalDurationDays} Days</span></p>` : ''}
+                    ${typeof item.pricePaid === 'number' ? `<p><span class="history-label">Price:</span> <span class="history-value">${item.pricePaid}৳</span></p>` : (typeof item.purchasedPrice === 'number' ? `<p><span class="history-label">Price:</span> <span class="history-value">${item.purchasedPrice}৳</span></p>` : '')}
+                `;
+                historyListEl.appendChild(itemEl);
+            }
+        });
+
+        if (!hasVisibleItems) {
+             historyListEl.innerHTML = `<div class="empty-history"><i class="fas fa-box-open"></i><p>No product history from the last 30 days.</p></div>`;
+        }
+
+    }, error => {
+        historyListEl.innerHTML = `<div class="empty-history"><i class="fas fa-exclamation-triangle"></i><p>Failed to load product history.</p></div>`;
+        console.error('Product history error:', error);
+    });
+}
+
+function closeProductHistoryModal() {
+    document.getElementById('productHistoryModal').style.display = 'none';
+    document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+}
+
+</script>
+</body>
+</html>
