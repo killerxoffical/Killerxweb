@@ -7,6 +7,7 @@
 <!-- Firebase SDK scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
@@ -218,7 +219,7 @@
     border: 1px solid var(--auth-input-border);
     border-radius: 10px; color: var(--auth-text-primary);
     font-size: 15px; outline: none;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    transition: border-color: 0.3s ease, box-shadow: 0.3s ease, background-color: 0.3s ease;
   }
   .auth-form-section input[type="text"]:focus,
   .auth-form-section input[type="password"]:focus {
@@ -458,9 +459,14 @@
 
   #paymentOptionsModal .premium-dashboard-button { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: none; justify-content: flex-start; padding-left: 20px; }
   #paymentOptionsModal .premium-dashboard-button:hover { background: rgba(255, 255, 255, 0.2); box-shadow: 0 6px 20px rgba(0,0,0,0.3); transform: translateY(-2px) perspective(500px) translateZ(15px); }
-  #paymentOptionsModal .premium-dashboard-button img {
-    border-radius: 50%;
+  #paymentOptionsModal .premium-dashboard-button img,
+  #paymentOptionsModal .premium-dashboard-button i {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
     object-fit: cover;
+    border-radius: 50%;
   }
   .premium-dashboard-button:last-of-type { margin-bottom: 0; }
   .premium-dashboard-button::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.05) 100%); transform: translateX(-100%); transition: transform 0.6s ease; z-index: -1; }
@@ -479,7 +485,7 @@
   .redeem-input-container i.fa-gift { color: var(--auth-accent-main); margin-right: 12px; font-size: 18px; }
   #redeemCodeInput { flex-grow: 1; padding: 14px 10px; border: none; background: transparent; color: white; font-size: 15px; outline: none; }
   #redeemCodeInput::placeholder { color: rgba(255,255,255,0.5); }
-  .redeem-input-container button { padding: 14px 25px; background-color: var(--auth-accent-main); color: white; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: background-color 0.3s ease; letter-spacing: 0.5px; }
+  .redeem-input-container button { padding: 14px 25px; background-color: var(--auth-accent-main); color: white; border: none; font-weight: 600; font-size: 14px; cursor: pointer; transition: background-color: 0.3s ease; letter-spacing: 0.5px; }
   .redeem-input-container button:hover { background-color: var(--auth-button-hover-end); } /* Using existing var */
   
   /* User Info Details Panel (modified) */
@@ -550,85 +556,127 @@
   }
   /* End User Info Details Panel Styles */
 
-  /* New Active Product Status Display Panel Styles */
+  /* REFINED: Active Product Status Display Panel Styles to match screenshot */
+  #activeProductDisplayPanelContainer {
+    width: calc(100% - 40px); 
+    max-width: 850px; /* Wider for desktop */
+    margin: 20px auto 0 auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px;
+  }
+
   .active-product-display-panel { 
     width: 100%; 
-    padding: 25px;
+    padding: 20px 25px; /* Reduced vertical padding */
     background-color: var(--auth-panel-bg); 
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 12px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     color: var(--light);
     font-family: 'Poppins', sans-serif;
-    border: 1px solid rgba(255, 140, 0, 0.2); 
-    position: relative; /* For lifetime badge positioning */
+    border: 1px solid rgba(255, 140, 0, 0.25); 
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
+  .active-product-display-panel:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+  }
+  
   .active-product-display-panel.lifetime-product-card {
-      border: 2px solid var(--warning);
-      background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.1));
-      box-shadow: 0 10px 40px rgba(255, 193, 7, 0.3);
-      padding-top: 40px; /* Make space for badge */
+    border: 2px solid var(--warning);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.1));
+    box-shadow: 0 10px 40px rgba(255, 193, 7, 0.3);
+    padding-top: 20px; 
   }
+
   .lifetime-badge {
-      background-color: var(--warning);
-      color: var(--dark);
-      padding: 4px 10px;
-      font-size: 10px;
-      font-weight: 700;
-      border-radius: 10px 0 10px 0;
-      position: absolute;
-      top: 0px; 
-      left: 0px;
-      text-transform: uppercase;
-      z-index: 1;
+    background-color: var(--warning);
+    color: var(--dark);
+    padding: 4px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 11px 0 12px 0; /* Match card corners */
+    position: absolute;
+    top: 0; 
+    left: 0;
+    text-transform: uppercase;
+    z-index: 1;
   }
 
   .active-product-display-panel .active-product-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px; 
-    font-size: 16px; 
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Faint line */
   }
+
+  .active-product-display-panel .active-product-item:last-of-type {
+     margin-bottom: 0;
+     padding-bottom: 0;
+     border-bottom: none; /* No line for the last info item */
+  }
+
+
   .active-product-display-panel .active-product-item .label {
-    font-weight: 700; 
-    color: var(--light);
-    margin-right: 10px;
+    font-weight: 500;
+    color: var(--auth-text-secondary);
+    margin-right: 15px;
+    text-transform: uppercase;
+    font-size: 14px;
   }
+
   .active-product-display-panel .active-product-item .value {
-    font-weight: 500; 
+    font-weight: 600;
     color: var(--light); 
     text-align: right;
     word-break: break-all;
+    font-size: 16px;
   }
+  .active-product-display-panel .active-product-item .value[id*="Expiry"] {
+    color: var(--secondary);
+    font-family: monospace, 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+
   .active-product-display-panel .download-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 25px; 
+    margin-top: 25px; /* Space above the download section */
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
+
   .active-product-display-panel .download-now-text {
     font-weight: 700;
-    font-size: 18px;
-    color: var(--light);
-  }
-  .active-product-display-panel .download-now-text i { 
-    margin-left: 8px;
     font-size: 16px;
+    color: var(--light);
+    text-transform: uppercase;
   }
+  .active-product-display-panel .download-now-text::after {
+    content: " >"; /* Add the ">" as requested visually */
+  }
+
   .active-product-display-panel .active-product-download-btn { 
     background-color: var(--auth-accent-main); 
-    color: white;
+    color: var(--dark);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 14px;
     padding: 10px 25px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease, color 0.3s ease;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
   }
   .active-product-display-panel .active-product-download-btn:hover {
     background-color: var(--auth-button-hover-end); 
     transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.25);
   }
   /* End New Active Product Status Display Panel Styles */
 
@@ -679,7 +727,7 @@
   @keyframes borderFlow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
   /* Updated Notification Modal width */
-  .modal-bg#notificationModal .modal {
+  #notificationModal .modal {
     max-width: 550px; /* Increased width for notifications */
   }
 
@@ -759,6 +807,21 @@
     background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%);
   }
 
+  /* Style for the custom file input */
+  #paymentScreenshotInput {
+    width: 100%;
+    padding: 12px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    cursor: pointer;
+    text-align: center;
+  }
+  #paymentScreenshotInput::file-selector-button {
+      display: none; /* Hide the default button */
+  }
+
 
   .modal .confirm-hwid-btn { background: var(--primary); border-radius: 12px; padding: 16px 20px; font-size: 16px; font-weight: 600; color: #fff; margin-top: 25px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: all 0.3s ease; transform: perspective(500px) translateZ(0); position: relative; overflow: hidden; border: none; }
   .modal .confirm-hwid-btn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%); transform: translateX(-100%); transition: transform 0.6s ease; }
@@ -791,7 +854,6 @@
   .transaction-item:hover .transaction-right i { opacity: 1; transform: translateX(5px); }
   .empty-history { text-align: center; padding: 40px 20px; color: rgba(255, 255, 255, 0.6); }
   .empty-history i { font-size: 60px !important; margin-bottom: 20px !important; opacity: 0.7 !important; color: rgba(255, 255, 255, 0.4); animation: spin 2s linear infinite; }
-  .empty-history p { font-size: 16px; transition: all 0.3s ease; }
   .empty-history:hover p { color: rgba(255, 255, 255, 0.8); transform: scale(1.05); }
   .bonus-message { color: var(--secondary); font-size: 14px; margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 8px; animation: textGlowBonusMessage 3s infinite alternate; }
   @keyframes textGlowBonusMessage { 0% { opacity: 0.7; } 100% { opacity: 1; } }
@@ -905,6 +967,13 @@
   #paymentGatewayInstructions p { margin-bottom: 8px; }
   #paymentGatewayInstructions hr { border-color: rgba(255,255,255,0.2); margin: 10px 0; }
   #paymentGatewayInstructions strong { color: var(--warning); }
+  #paymentGatewayInstructions .qr-code-container img {
+      width: 150px;
+      height: 150px;
+      margin: 10px auto;
+      display: block;
+      border-radius: 8px;
+  }
 
   /* Styles for the new General Store */
   .general-store-controls {
@@ -955,6 +1024,8 @@
     justify-content: space-between;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
   }
   .general-store-product-item:hover {
     transform: translateY(-5px) scale(1.02);
@@ -1011,13 +1082,54 @@
     justify-content: center;
     gap: 8px;
   }
-  .general-store-product-item .buy-item-button:hover {
+  .general-store-product-item .buy-item-button:hover:not(:disabled) {
     background: var(--primary-dark);
     transform: translateY(-2px);
   }
   .general-store-product-item .buy-item-button:disabled {
     background: #555;
     cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+  }
+  .discount-badge, .out-of-stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .discount-badge {
+    background-color: var(--success);
+    box-shadow: 0 2px 5px rgba(0, 184, 148, 0.4);
+  }
+  .out-of-stock-badge {
+    background-color: var(--danger);
+    box-shadow: 0 2px 5px rgba(255, 118, 117, 0.4);
+  }
+  .product-price-container {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .original-price {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: line-through;
+    font-weight: 500;
+  }
+  .discounted-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--warning);
   }
   #generalStoreItemConfirmImage img {
       max-width: 100px;
@@ -1150,9 +1262,32 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
 
+  /* --- NEW: Time Notice Modal Styles --- */
+  .confirm-btn.whatsapp-notice-btn {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  }
+  .confirm-btn.whatsapp-notice-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+    transform: translateY(-3px) perspective(500px) translateZ(20px);
+  }
+  .translator-placeholder {
+    cursor: help;
+  }
+  .translator-placeholder i {
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+  }
+  .translator-placeholder:hover i {
+    color: var(--secondary);
+    transform: scale(1.1);
+  }
+
 
   @media (max-width: 992px) { .bonus-system-container { flex-direction: column; } .bonus-add-balance-section, .bonus-accumulated-section { flex: none; width: 100%; } .bonus-progress-bar { gap: 10px; } .bonus-progress-bar::before { display: none; } .milestone-item { margin-bottom: 20px; } .bonus-summary { flex-direction: column; gap: 12px; align-items: center; } .bonus-summary .summary-item { width: auto; min-width: 180px; max-width: 85%; background-color: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 8px; } }
-  @media (max-width: 768px) { #dashboardPanel { flex-direction: column; align-items: center; padding: 20px; max-width: 100%; min-height: unset; border-radius: 0; } .main-dashboard-content { max-height: calc(100vh - 80px); padding-top: 60px; } .sidebar { width: 100%; height: 100%; border-radius: 0; border-right: none; padding-top: 20px; } .close-sidebar-btn { top: 15px; right: 15px; } .main-dashboard-content { width: 100%; padding: 0; padding-top: 70px; } .menu-toggle-btn { top: 15px; left: 15px; } .notification-wrapper-main { top: 15px; } .notification-wrapper-main .notification-btn { width: 30px; height: 30px; } .notification-wrapper-main .notification-btn i { font-size: 16px; } .notification-wrapper-main .notification-btn span { top: -2px; right: -2px; min-width: 16px; height: 16px; font-size: 9px; } .dashboard-header { flex-direction: column; align-items: center; margin-bottom: 10px; padding: 0 15px;} .profile-img { width: 60px; height: 60px; margin-right: 0; margin-bottom: 10px; } .killerx-title { font-size: 24px; margin-left: 0; text-align: center; } .killerx-title span { font-size: 16px; } .user-id-display, .hardware-id-section, .redeem-section-wrapper, .overview-card-standalone, .bonus-system-container, .user-info-details-panel, #activeProductDisplayPanelContainer .active-product-display-panel { width: calc(100% - 30px); margin-left: 15px; margin-right: 15px; } .balance-container { margin-top: 20px; } .points { font-size: 48px; } .liquid-blob { filter: blur(60px); } #loginBg .liquid-blob:nth-child(1), #dashboardBg .liquid-blob:nth-child(1) { width: 600px; height: 600px; } #loginBg .liquid-blob:nth-child(2), #dashboardBg .liquid-blob:nth-child(2) { width: 500px; height: 500px; } #customAmountInput { padding: 14px 15px; font-size: 15px; } .transaction-item { padding: 12px 15px; } .transaction-left { gap: 10px; } .transaction-icon i { font-size: 24px; } .transaction-amount { font-size: 16px; } .transaction-status { font-size: 12px; } .transaction-date { font-size: 10px; } #packageRenewModal .modal, #generalStoreModal .modal, #downloadPanelModal .modal, #productHistoryModal .modal { max-width: 95%; width: auto; padding: 20px; } #packageDetailModal .modal, #renewConfirmationModal .modal, #purchaseSuccessModal .modal, #generalStoreItemPurchaseConfirmationModal .modal, #editProfileModal .modal { max-width: 350px; padding: 25px; } .buy-button { padding: 12px 20px !important; font-size: 16px !important; } .general-store-controls { flex-direction: column; } }
+  @media (max-width: 768px) { #dashboardPanel { flex-direction: column; align-items: center; padding: 20px; max-width: 100%; min-height: unset; border-radius: 0; } .main-dashboard-content { max-height: calc(100vh - 80px); padding-top: 60px; } .sidebar { width: 100%; height: 100%; border-radius: 0; border-right: none; padding-top: 20px; } .close-sidebar-btn { top: 15px; right: 15px; } .main-dashboard-content { width: 100%; padding: 0; padding-top: 70px; } .menu-toggle-btn { top: 15px; left: 15px; } .notification-wrapper-main { top: 15px; } .notification-wrapper-main .notification-btn { width: 30px; height: 30px; } .notification-wrapper-main .notification-btn i { font-size: 16px; } .notification-wrapper-main .notification-btn span { top: -2px; right: -2px; min-width: 16px; height: 16px; font-size: 9px; } .dashboard-header { flex-direction: column; align-items: center; margin-bottom: 10px; padding: 0 15px;} .profile-img { width: 60px; height: 60px; margin-right: 0; margin-bottom: 10px; } .killerx-title { font-size: 24px; margin-left: 0; text-align: center; } .killerx-title span { font-size: 16px; } .user-id-display, .hardware-id-section, .redeem-section-wrapper, .overview-card-standalone, .bonus-system-container, .user-info-details-panel, #activeProductDisplayPanelContainer { width: calc(100% - 30px); margin-left: 15px; margin-right: 15px; } .balance-container { margin-top: 20px; } .points { font-size: 48px; } .liquid-blob { filter: blur(60px); } #loginBg .liquid-blob:nth-child(1), #dashboardBg .liquid-blob:nth-child(1) { width: 600px; height: 600px; } #loginBg .liquid-blob:nth-child(2), #dashboardBg .liquid-blob:nth-child(2) { width: 500px; height: 500px; } #customAmountInput { padding: 14px 15px; font-size: 15px; } .transaction-item { padding: 12px 15px; } .transaction-left { gap: 10px; } .transaction-icon i { font-size: 24px; } .transaction-amount { font-size: 16px; } .transaction-status { font-size: 12px; } .transaction-date { font-size: 10px; } #packageRenewModal .modal, #generalStoreModal .modal, #downloadPanelModal .modal, #productHistoryModal .modal { max-width: 95%; width: auto; padding: 20px; } #packageDetailModal .modal, #renewConfirmationModal .modal, #purchaseSuccessModal .modal, #generalStoreItemPurchaseConfirmationModal .modal, #editProfileModal .modal { max-width: 350px; padding: 25px; } .buy-button { padding: 12px 20px !important; font-size: 16px !important; } .general-store-controls { flex-direction: column; } }
   @media (max-width: 480px) { .balance-container { margin-bottom: 15px;} .points { font-size: 42px; margin-bottom: 2px;} .balance-label { font-size: 12px; margin-bottom: 6px;} .expires-text { font-size: 14px;} .bonus-add-balance-section h2, .bonus-accumulated-section h2 { font-size: 18px; margin-bottom: 15px; } .bonus-progress-bar { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; } .milestone-item { margin-bottom: 15px; } .milestone-marker { font-size: 12px; min-width: 50px; height: 28px; } .milestone-bonus-text { font-size: 11px; } .bonus-summary .summary-item { min-width: 0; width: 90%; padding: 8px 12px; } .bonus-summary .summary-item span { font-size: 12px; } .bonus-summary .summary-item strong { font-size: 15px; } .bonus-summary .summary-item.recent-bonus-item strong { font-size: 13px; padding: 4px 12px; } .bonus-accumulated-section p { font-size: 12px; } .accumulated-bonus-value-wrapper i { font-size: 18px; } #accumulatedBonusDisplay { font-size: 20px; } .claim-bonus-btn { font-size: 15px; padding: 10px 25px; } .redeem-section-wrapper { max-width: calc(100% - 30px) !important; padding: 15px !important;} .redeem-input-container { flex-direction: column; padding-left: 0 !important; border-color: transparent !important; background-color: transparent !important; } .redeem-input-container i.fa-gift { display: none; } #redeemCodeInput { width: 100%; text-align: center; margin-bottom: 10px; background-color: var(--auth-input-bg, #2c3036) !important; border: 1px solid var(--auth-accent-main) !important; border-radius: 6px !important; padding: 12px 10px !important; } #redeemCodeInput::placeholder { text-align: center; } .redeem-input-container button { width: 100%; border-radius: 6px !important; } .general-store-product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; } .general-store-product-item { padding: 10px;} .general-store-product-item .product-title { font-size: 14px; min-height: 30px;} .general-store-product-item .product-description {font-size: 11px;} .general-store-product-item .product-price { font-size: 16px; } .user-info-details-panel p .label-title { min-width: 100px; font-size: 13px;} .user-info-details-panel p .value-text { font-size: 13px;} .user-info-details-panel .info-header { font-size: 16px;} .active-product-display-panel { padding: 15px; } .active-product-display-panel .active-product-item { font-size: 14px; margin-bottom: 10px;} .active-product-display-panel .download-now-text { font-size: 16px; } .active-product-display-panel .active-product-download-btn { font-size: 14px; padding: 8px 20px; } .product-history-item p {font-size: 13px;} }
 
 </style>
@@ -1273,7 +1408,8 @@
         <button class="premium-dashboard-button edit-profile-btn" onclick="openEditProfileModal(); toggleSidebar()">
             <i class="fas fa-user-edit"></i> Edit Profile
         </button>
-        <button class="premium-dashboard-button add-money" onclick="openModal(); toggleSidebar()">
+        <!-- MODIFIED: Sidebar "Add Money" button now calls the new flow start function -->
+        <button class="premium-dashboard-button add-money" onclick="openAddMoneyFlow(); toggleSidebar()">
             <i class="fas fa-plus"></i> Add Money
         </button>
         <button class="premium-dashboard-button package-renew-sidebar-btn" id="packageRenewButtonSidebar" onclick="openPackageRenewModal(); toggleSidebar()" style="display: none;">
@@ -1318,7 +1454,7 @@
             <p><span class="label-title"><i id="infoDeviceIcon" class="fas fa-desktop"></i> DEVICE :</span> <span id="infoDeviceType" class="value-text">N/A</span></p>
         </div>
 
-        <div id="activeProductDisplayPanelContainer" style="width: calc(100% - 40px); max-width: 600px; margin: 20px auto 0 auto; display: flex; flex-direction: column; gap: 20px;">
+        <div id="activeProductDisplayPanelContainer">
         </div>
 
         <div class="overview-card-standalone"> <div class="card-title">KX Overview</div> <div class="card-text">KILLER X OFFICIAL WEBSITE</div> <div class="card-text">USER DASHBOARD </div> <div class="contact-info"> <span><i class="fas fa-user-tie"></i>OWNER ➤ SHEZIN BOY</span> <span><i class="fab fa-whatsapp"></i> <a href="https://wa.me/8801889221262" target="_blank">  WhatsApp 01889221262</a></span> </div> </div>
@@ -1326,9 +1462,83 @@
   </div>
 
   <!-- All Modals -->
-  <div class="modal-bg" id="modalBg"> <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"> <button class="close-btn" aria-label="Close modal" onclick="closeModal()">×</button> <h2 id="modalTitle"><i class="fas fa-wallet"></i> Enter Amount</h2> <input type="number" id="customAmountInput" placeholder="Enter Amount (Min ৳50)" min="50" step="10"> <div class="bonus-message" id="addMoneyBonusMessage"><i class="fas fa-info-circle"></i> ১০০ টাকার বেশি অ্যাড করলেই বোনাস পাবেন 🥰!</div> <button class="confirm-btn" id="confirmAddMoneyBtn" onclick="confirmAdd()" disabled><i class="fas fa-check-circle"></i> Confirm & Pay</button> </div> </div>
-  <div class="modal-bg" id="paymentOptionsModal" style="display: none;"> <div class="modal" role="dialog" aria-modal="true" style="max-width: 450px;"> <button class="close-btn" aria-label="Close modal" onclick="closePaymentOptionsModal()">×</button> <h2><i class="fas fa-credit-card"></i> Select Payment Method</h2> <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;"> <button class="premium-dashboard-button" onclick="showPaymentGateway('bkash')"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.png?alt=media&token=fc1cd24b-930a-4547-8d09-f544ef5d2165" alt="Bkash" style="width: 24px; height: 24px; margin-right: 10px; vertical-align: middle;"> Bkash </button> <button class="premium-dashboard-button" onclick="showPaymentGateway('nagad')"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.jpeg?alt=media&token=98b94d4c-afc8-4830-9842-627100bd8c49" alt="Nagad" style="width: 24px; height: 24px; margin-right: 10px; vertical-align: middle;"> Nagad </button> <button class="premium-dashboard-button" onclick="showPaymentGateway('rocket')"> <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitl.jpeg?alt=media&token=c0452c5b-21d5-47d7-8966-adf7f8df07ee" alt="Rocket" style="width: 24px; height: 24px; margin-right: 10px; vertical-align: middle;"> Rocket </button> </div> </div> </div>
-  <div class="modal-bg" id="paymentGatewayModal" style="display: none;"> <div class="modal" role="dialog" aria-modal="true" style="max-width: 500px;"> <button class="close-btn" aria-label="Close modal" onclick="closePaymentGatewayModal()">×</button> <h2 id="paymentGatewayTitle" style="display: flex; align-items: center; justify-content: center;"><i class="fas fa-money-check-alt" style="margin-right:10px;"></i> Payment</h2> <div id="paymentGatewayInstructions" style="text-align: left; margin: 20px 0; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; font-size: 13px; line-height: 1.7; border: 1px solid rgba(255,255,255,0.1);"> </div> <input type="text" id="paymentTransactionIdInput" placeholder="Enter Transaction ID" style="width: 100%; padding: 16px 20px; margin-bottom: 20px; border: none; border-radius: 12px; font-size: 16px; outline: none; background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.1);"> <button class="confirm-btn" id="submitPaymentTxnBtn" onclick="submitPaymentTransactionId()"><i class="fas fa-paper-plane"></i> Submit Transaction ID</button> </div> </div>
+  <!-- MODIFIED: This is now the "Enter Amount" modal (Step 2) -->
+  <div class="modal-bg" id="modalBg" style="display: none;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="close-btn" aria-label="Close modal" onclick="closeModal()">×</button>
+        <h2 id="modalTitle"><i class="fas fa-wallet"></i> Enter Amount</h2>
+        
+        <!-- NEW: Crypto info section, hidden by default -->
+        <div id="cryptoInfoSection" style="display: none; text-align: center; margin-bottom: 15px;">
+            <p style="font-size: 14px; color: var(--warning); margin: 0;"><strong>Exchange Rate: 1 USDT = 119 BDT</strong></p>
+            <p id="cryptoCalculatedAmount" style="font-size: 16px; color: var(--secondary); margin-top: 5px;">You will receive: ৳0.00</p>
+        </div>
+
+        <input type="number" id="customAmountInput" placeholder="Enter Amount (Min ৳50)" min="50" step="10">
+        <div class="bonus-message" id="addMoneyBonusMessage"><i class="fas fa-info-circle"></i> ১০০ টাকার বেশি অ্যাড করলেই বোনাস পাবেন 🥰!</div>
+        <button class="confirm-btn" id="confirmAddMoneyBtn" onclick="confirmAdd()" disabled><i class="fas fa-check-circle"></i> Confirm & Proceed</button>
+    </div>
+  </div>
+
+  <!-- MODIFIED: This is now the "Select Method" modal (Step 1) -->
+  <div class="modal-bg" id="paymentOptionsModal" style="display: none;">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width: 450px;">
+        <button class="close-btn" aria-label="Close modal" onclick="closePaymentOptionsModal()">×</button>
+        <h2><i class="fas fa-credit-card"></i> Select Payment Method</h2>
+        <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+            <!-- MODIFIED: Onclick calls the new flow function -->
+            <button class="premium-dashboard-button" onclick="selectPaymentMethod('bkash')">
+                <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.png?alt=media&token=fc1cd24b-930a-4547-8d09-f544ef5d2165" alt="Bkash"> Bkash
+            </button>
+            <button class="premium-dashboard-button" onclick="selectPaymentMethod('nagad')">
+                <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.jpeg?alt=media&token=98b94d4c-afc8-4830-9842-627100bd8c49" alt="Nagad"> Nagad
+            </button>
+            <button class="premium-dashboard-button" onclick="selectPaymentMethod('rocket')">
+                <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitl.jpeg?alt=media&token=c0452c5b-21d5-47d7-8966-adf7f8df07ee" alt="Rocket"> Rocket
+            </button>
+            <button class="premium-dashboard-button" onclick="selectPaymentMethod('binance')">
+                <img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/download.png?alt=media&token=8f650e93-5df8-4aa1-9b2f-fccf72aac663" alt="Binance"> Binance Pay
+            </button>
+            <button class="premium-dashboard-button" onclick="selectPaymentMethod('crypto')">
+                <i class="fab fa-btc" style="font-size: 24px; color: #f7931a;"></i> Crypto (USDT TRC20)
+            </button>
+        </div>
+    </div>
+  </div>
+  
+  <!-- MODIFIED: This is the final instructions/proof modal (Step 3) -->
+  <div class="modal-bg" id="paymentGatewayModal" style="display: none;">
+      <div class="modal" role="dialog" aria-modal="true" style="max-width: 500px;">
+          <button class="close-btn" aria-label="Close modal" onclick="closePaymentGatewayModal()">×</button>
+          <h2 id="paymentGatewayTitle" style="display: flex; align-items: center; justify-content: center;"><i class="fas fa-money-check-alt" style="margin-right:10px;"></i> Payment</h2>
+          <div id="paymentGatewayInstructions" style="text-align: left; margin: 20px 0; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; font-size: 13px; line-height: 1.7; border: 1px solid rgba(255,255,255,0.1);"></div>
+          
+          <div id="proofTypeSelector" style="text-align: left; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 20px;">
+              <label style="cursor: pointer;"><input type="radio" name="proofType" value="id" checked onchange="toggleProofInput('id')"> Transaction ID</label>
+              <label style="cursor: pointer;"><input type="radio" name="proofType" value="screenshot" onchange="toggleProofInput('screenshot')"> Screenshot</label>
+          </div>
+  
+          <!-- Input Containers -->
+          <div id="idInputContainer">
+              <input type="text" id="paymentTransactionIdInput" placeholder="Enter Transaction ID" style="width: 100%; padding: 16px 20px; margin-bottom: 20px; border: none; border-radius: 12px; font-size: 16px; outline: none; background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.1);">
+          </div>
+          <div id="screenshotInputContainer" style="display: none; margin-bottom: 20px;">
+              <!-- NEW: Sender Number Input -->
+              <input type="text" id="paymentSenderNumberInput" placeholder="Enter Sender's Number ( যে নম্বর থেকে টাকা পাঠিয়েছেন )" style="width: 100%; padding: 12px 15px; margin-bottom: 15px; border: none; border-radius: 12px; font-size: 14px; outline: none; background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.1);">
+
+              <input type="file" id="paymentScreenshotInput" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                  <label for="paymentScreenshotInput" class="confirm-btn" style="width: auto; padding: 10px 20px; font-size: 14px; margin: 0;">
+                      <i class="fas fa-camera"></i> Choose Screenshot
+                  </label>
+                  <span id="fileNameDisplay" style="color: rgba(255,255,255,0.7); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">No file chosen</span>
+              </div>
+          </div>
+  
+          <button class="confirm-btn" id="submitPaymentTxnBtn" onclick="submitPaymentTransactionId()"><i class="fas fa-paper-plane"></i> Submit</button>
+      </div>
+  </div>
+
   <div class="modal-bg" id="genericSuccessModal" style="display: none;"> <div class="modal"> <button class="close-btn" onclick="closeGenericSuccessModal()">×</button> <h2 style="color: var(--success);"><i class="fas fa-check-circle"></i> Success!</h2> <p id="genericSuccessMessage" style="margin: 20px 0; font-size: 16px;"></p> <button class="confirm-btn" style="background: var(--success);" onclick="closeGenericSuccessModal()">OK</button> </div> </div>
   <div class="modal-bg" id="genericErrorModal" style="display: none;"> <div class="modal"> <button class="close-btn" onclick="closeGenericErrorModal()">×</button> <h2 style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Error!</h2> <p id="genericErrorMessage" style="margin: 20px 0; font-size: 16px;"></p> <button class="confirm-btn" style="background: var(--danger);" onclick="closeGenericErrorModal()">OK</button> </div> </div>
   <div class="modal-bg" id="historyModal" style="display: none;"><div class="modal"><button class="close-btn" onclick="closeHistoryModal()">×</button><h2><i class="fas fa-history"></i> Transaction History</h2><p class="auto-removal-notice"><i class="fas fa-info-circle"></i> Records are automatically removed after 3 days.</p><div id="historyList" style="max-height: 400px; overflow-y: auto; margin: 20px 0;"><div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading transactions...</p></div></div></div></div>
@@ -1463,7 +1673,34 @@
             <button class="confirm-btn" onclick="closeDeleteAccountConfirmationModal()" style="background:var(--secondary); width:45%;">Cancel</button>
         </div>
     </div>
-</div>
+  </div>
+
+  <!-- NEW: QR Code Popup Modal -->
+  <div class="modal-bg" id="qrCodePopupModal" style="display: none; z-index: 1200;" onclick="closeQrCodePopup()">
+    <div class="modal" style="max-width: 350px; padding: 10px; background: white;" onclick="event.stopPropagation()">
+        <img id="qrCodePopupImage" src="" alt="QR Code" style="width: 100%; height: auto; border-radius: 15px;">
+    </div>
+  </div>
+
+  <!-- NEW: Time-based Notice Modal -->
+  <div class="modal-bg" id="timeNoticeModal" style="display: none; z-index: 1500;">
+      <div class="modal" style="max-width: 500px;">
+          <button class="close-btn" onclick="closeTimeNoticeModal()">×</button>
+          <h2 id="timeNoticeTitle" style="color: var(--warning);"><i class="fas fa-clock"></i> Important Notice</h2>
+          <p id="timeNoticeMessage" style="margin: 20px 0; font-size: 16px; line-height: 1.6;"></p>
+          <div id="timeNoticeTimerDisplay" style="font-size: 28px; font-weight: 700; color: var(--secondary); margin: 15px 0; font-family: monospace;">00:00:00</div>
+          <p id="timeNoticeTimerLabel" style="font-size: 14px; color: rgba(255,255,255,0.7); margin-top: -10px; margin-bottom: 25px;">Time Remaining</p>
+          
+          <div class="notice-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+              <a href="https://wa.me/8801889221262" target="_blank" class="confirm-btn whatsapp-notice-btn" style="width: auto; padding: 10px 20px; font-size: 15px; margin: 0; border-radius: 10px;">
+                  <i class="fab fa-whatsapp"></i> Contact Admin
+              </a>
+              <div class="translator-placeholder" title="Translate (Feature coming soon)">
+                  <i class="fas fa-language"></i>
+              </div>
+          </div>
+      </div>
+  </div>
 
 
 <script>
@@ -1471,25 +1708,35 @@
   const firebaseConfig = { apiKey: "AIzaSyAueM2O16GbLJX4TmfK7g8IZyFJRMdh1WE", databaseURL: "https://ng-mods-x2-default-rtdb.firebaseio.com", projectId: "ng-mods-x2", storageBucket: "ng-mods-x2.appspot.com" };
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
+  const storage = firebase.storage();
 
+  // --- Global variables for new Add Money flow ---
+  const botToken = '7751122998:AAF-2bRdIBgoJ9iaX6Kx9z2yXJHsJ3xfPTk';
+  const chatId = '6623694733';
+  const USD_TO_BDT_RATE = 119;
+  let currentPaymentMethod = null;
+  let selectedAmount = null; 
+  const MIN_ADD_AMOUNT_BDT = 50;
+  const MIN_ADD_AMOUNT_USD = 1;
+  
+  // --- Other Global App State Variables ---
   let currentUser = null;
   let transactionListener = null;
   let selectedPackageForPurchase = null; 
-  let currentPaymentMethod = null;
-  let selectedAmount = null;
-  const MIN_ADD_AMOUNT = 50;
   window.userListener = null;
   let currentGeneralStoreItemForPurchase = null;
   let allStoreProducts = [];
+  let stocksAndDiscountsData = {};
   let firebasePackageOffers = []; 
   let activeDeviceProducts = []; 
   let sessionNotifiedExpiredIds = new Set();
+  let noticeTimerInterval = null;
 
 
   const productKeyMap = {
     "Premium": { 
         displayName: "Premium Panel", 
-        downloadKey: "Premium", // Used for internal logic or specific download button ID if needed
+        downloadKey: "Premium", 
         firebaseUserKey: "Premium", 
         firebaseDownloadLinkKey: "Premium_panel:", 
         categoryForStore: "Premium_Panel", 
@@ -1509,7 +1756,7 @@
         displayName: "Unsafe Panel", 
         downloadKey: "Unsafe", 
         firebaseUserKey: "Unsafe",  
-        firebaseDownloadLinkKey: "Unsafe panel:", // Matches Firebase image
+        firebaseDownloadLinkKey: "Unsafe panel:",
         categoryForStore: "Unsafe_Panel", 
         renewCodePart: "UNSAFE", 
         lifetimeFlag: "Unsafe lifetime", 
@@ -1519,7 +1766,7 @@
         displayName: "Basic Sniper Panel", 
         downloadKey: "BasicSniper",
         firebaseUserKey: "basic_sniper", 
-        firebaseDownloadLinkKey: "Basic_sniper_panel:", // Matches Firebase image
+        firebaseDownloadLinkKey: "Basic_sniper_panel:",
         categoryForStore: "Basic_Sniper_Panel", 
         renewCodePart: "BASICSNIPER", 
         lifetimeFlag: "Basic sniper lifetime", 
@@ -1529,7 +1776,7 @@
         displayName: "Basic Aimbot Panel", 
         downloadKey: "BasicAimbot",
         firebaseUserKey: "basic_aimbot", 
-        firebaseDownloadLinkKey: "Basic_aimbot_panel:", // Matches Firebase image
+        firebaseDownloadLinkKey: "Basic_aimbot_panel:",
         categoryForStore: "Basic_Aimbot_Panel", 
         renewCodePart: "BASICAIMBOT", 
         lifetimeFlag: "Basic aimbot lifetime", 
@@ -1539,7 +1786,7 @@
         displayName: "Mobile Panel", 
         downloadKey: "Mobile",
         firebaseUserKey: "Mobile", 
-        firebaseDownloadLinkKey: "Mobile:", // Matches Firebase image
+        firebaseDownloadLinkKey: "Mobile:",
         categoryForStore: "Mobile_Panel", 
         renewCodePart: "MOBILE"
     }
@@ -1554,43 +1801,263 @@
       MOBILE: "Mobile"
   };
 
+  // --- Declare variables globally, assign them when DOM is ready ---
+  let dashboardPanel, loginBg, dashboardBg, premiumAuthContainer, premiumLoginForm, premiumRegisterForm;
+  let premiumLoginUserIdInput, premiumLoginPasswordInput, premiumRememberMeCheckbox;
+  let premiumRegUserIdInput, premiumRegPasswordInput, premiumLoginButton, premiumRegisterButton;
+  let authStatusPopup, authStatusSpinner, authStatusMessage, authStatusSubMessage, authStatusIconContainer, authStatusIcon;
+  let authErrorPopupModal, authErrorPopupTitle, authErrorPopupMessage, authErrorPopupCloseBtn;
+  let modalBg, addMoneyBonusMessageEl, confirmBtnAddMoney, customAmountInputEl;
 
-  const dashboardPanel = document.getElementById('dashboardPanel');
-  const loginBg = document.getElementById('loginBg');
-  const dashboardBg = document.getElementById('dashboardBg');
+  document.addEventListener('DOMContentLoaded', async () => {
+    // --- Assign all DOM elements here ---
+    dashboardPanel = document.getElementById('dashboardPanel');
+    loginBg = document.getElementById('loginBg');
+    dashboardBg = document.getElementById('dashboardBg');
+    premiumAuthContainer = document.getElementById('premiumAuthContainer');
+    premiumLoginForm = document.getElementById('premiumLoginForm');
+    premiumRegisterForm = document.getElementById('premiumRegisterForm');
+    premiumLoginUserIdInput = document.getElementById('premiumLoginUserId');
+    premiumLoginPasswordInput = document.getElementById('premiumLoginPassword');
+    premiumRememberMeCheckbox = document.getElementById('premiumRememberMeCheckbox');
+    premiumRegUserIdInput = document.getElementById('premiumRegUserId');
+    premiumRegPasswordInput = document.getElementById('premiumRegPassword');
+    premiumLoginButton = document.getElementById('premiumLoginButton');
+    premiumRegisterButton = document.getElementById('premiumRegisterButton');
+    authStatusPopup = document.getElementById('authStatusPopup');
+    authStatusSpinner = document.getElementById('authStatusSpinner');
+    authStatusMessage = document.getElementById('authStatusMessage');
+    authStatusSubMessage = document.getElementById('authStatusSubMessage');
+    authStatusIconContainer = document.getElementById('authStatusIconContainer');
+    authStatusIcon = document.getElementById('authStatusIcon');
+    authErrorPopupModal = document.getElementById('authErrorPopupModal');
+    authErrorPopupTitle = document.getElementById('authErrorPopupTitle');
+    authErrorPopupMessage = document.getElementById('authErrorPopupMessage');
+    authErrorPopupCloseBtn = document.getElementById('authErrorPopupCloseBtn');
+    modalBg = document.getElementById('modalBg');
+    addMoneyBonusMessageEl = document.getElementById('addMoneyBonusMessage');
+    confirmBtnAddMoney = document.getElementById('confirmAddMoneyBtn');
+    customAmountInputEl = document.getElementById('customAmountInput');
 
-  const premiumAuthContainer = document.getElementById('premiumAuthContainer');
-  const premiumLoginForm = document.getElementById('premiumLoginForm');
-  const premiumRegisterForm = document.getElementById('premiumRegisterForm');
-  const premiumLoginUserIdInput = document.getElementById('premiumLoginUserId');
-  const premiumLoginPasswordInput = document.getElementById('premiumLoginPassword');
-  const premiumRememberMeCheckbox = document.getElementById('premiumRememberMeCheckbox');
-  const premiumRegUserIdInput = document.getElementById('premiumRegUserId');
-  const premiumRegPasswordInput = document.getElementById('premiumRegPassword');
-  const premiumLoginButton = document.getElementById('premiumLoginButton');
-  const premiumRegisterButton = document.getElementById('premiumRegisterButton');
+    // --- Attach event listeners here ---
+    authErrorPopupCloseBtn.addEventListener('click', () => {
+        authErrorPopupModal.classList.remove('visible');
+        authErrorPopupModal.classList.remove('position-top');
+    });
+    premiumLoginButton.addEventListener('click', handleLogin);
+    premiumRegisterButton.addEventListener('click', handleRegister);
+    
+    // --- The rest of the startup logic... ---
+    checkTimeBasedNotice(); // Check for time notice first
+    const maintenanceActive = await checkMaintenanceStatus();
+    if (maintenanceActive) {
+        return; 
+    }
 
+    sessionStorage.clear(); 
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    const rememberedPass = localStorage.getItem('rememberedPass');
+    if (rememberedUser && rememberedPass) {
+        premiumLoginUserIdInput.value = rememberedUser; premiumLoginPasswordInput.value = rememberedPass;
+        premiumRememberMeCheckbox.checked = true;
+    }
+    const storedUserId = localStorage.getItem('currentUser');
+    if (storedUserId) {
+        database.ref('users/' + storedUserId).once('value')
+        .then(s => {
+            if (s.exists()) {
+                const userData = s.val();
+                if (userData.isBlocked === true) {
+                    localStorage.removeItem('currentUser'); 
+                    displayAuthScreen();
+                    showAuthErrorPopup("Login Required", "Your account was blocked. Please contact admin.");
+                } else {
+                    currentUser = storedUserId; premiumAuthContainer.classList.remove('visible');
+                    dashboardPanel.style.display = 'flex'; loginBg.classList.remove('active');
+                    dashboardBg.classList.add('active'); document.body.style.overflow = 'auto';
+                    showDashboardUI(storedUserId, userData);
+                }
+            } else { 
+                localStorage.removeItem('currentUser'); 
+                displayAuthScreen(); 
+            }
+        })
+        .catch(e => {
+            console.error("Auto-login DB fetch failed:", e);
+            localStorage.removeItem('currentUser'); 
+            displayAuthScreen();
+        });
+    } else { displayAuthScreen(); }
 
-  const authStatusPopup = document.getElementById('authStatusPopup');
-  const authStatusSpinner = document.getElementById('authStatusSpinner');
-  const authStatusMessage = document.getElementById('authStatusMessage');
-  const authStatusSubMessage = document.getElementById('authStatusSubMessage');
-  const authStatusIconContainer = document.getElementById('authStatusIconContainer');
-  const authStatusIcon = document.getElementById('authStatusIcon');
+    const categoryFilter = document.getElementById('generalStoreCategoryFilter');
+    if (categoryFilter) categoryFilter.addEventListener('change', displayFilteredStoreProducts);
+    const searchInput = document.getElementById('generalStoreSearchInput');
+    if (searchInput) searchInput.addEventListener('input', displayFilteredStoreProducts);
 
+    document.querySelectorAll('#downloadPanelButtonsContainer .tools-list-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            if (!e.currentTarget.classList.contains('disabled-download')) {
+                 downloadProductPanel(e.currentTarget.dataset.productkey);
+            } else {
+                showGenericError("Subscription Required", "You do not have an active subscription for this panel.", true);
+            }
+        });
+    });
 
-  const authErrorPopupModal = document.getElementById('authErrorPopupModal');
-  const authErrorPopupTitle = document.getElementById('authErrorPopupTitle');
-  const authErrorPopupMessage = document.getElementById('authErrorPopupMessage');
-  const authErrorPopupCloseBtn = document.getElementById('authErrorPopupCloseBtn');
+    customAmountInputEl.addEventListener('input', () => {
+        const amount = parseFloat(customAmountInputEl.value);
+        const confirmBtn = document.getElementById('confirmAddMoneyBtn');
+        
+        if (currentPaymentMethod === 'crypto' || currentPaymentMethod === 'binance') {
+            const cryptoCalculatedEl = document.getElementById('cryptoCalculatedAmount');
+            if (!isNaN(amount) && amount >= MIN_ADD_AMOUNT_USD) {
+                const bdtValue = amount * USD_TO_BDT_RATE;
+                cryptoCalculatedEl.textContent = `You will receive: ৳${bdtValue.toFixed(2)}`;
+                confirmBtn.disabled = false;
+            } else {
+                cryptoCalculatedEl.textContent = 'You will receive: ৳0.00';
+                confirmBtn.disabled = true;
+            }
+        } else { // BDT methods
+            const bdtBonusMsg = document.getElementById('addMoneyBonusMessage');
+            if (!isNaN(amount) && amount >= MIN_ADD_AMOUNT_BDT) {
+                confirmBtn.disabled = false;
+                bdtBonusMsg.style.display = amount >= 100 ? 'flex' : 'none';
+            } else {
+                confirmBtn.disabled = true;
+                bdtBonusMsg.style.display = 'none';
+            }
+        }
+    });
 
-  authErrorPopupCloseBtn.addEventListener('click', () => {
-    authErrorPopupModal.classList.remove('visible');
-    authErrorPopupModal.classList.remove('position-top');
   });
-  premiumLoginButton.addEventListener('click', handleLogin);
-  premiumRegisterButton.addEventListener('click', handleRegister);
 
+  // --- Start of Time-based Notice Functions ---
+  function closeTimeNoticeModal() {
+      const modal = document.getElementById('timeNoticeModal');
+      if (modal) modal.style.display = 'none';
+      if (noticeTimerInterval) clearInterval(noticeTimerInterval);
+      sessionStorage.setItem('timeNoticeClosed', 'true'); // Remember for this session
+
+      // Check if any other modal is open before changing body overflow
+      const otherModals = document.querySelectorAll('.modal-bg');
+      let isAnotherModalOpen = false;
+      otherModals.forEach(m => {
+          if (m.id !== 'timeNoticeModal' && m.style.display !== 'none' && m.style.display !== '') {
+              isAnotherModalOpen = true;
+          }
+      });
+
+      if (!isAnotherModalOpen) {
+          document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+      }
+  }
+
+  function startNoticeTimer(targetDate, timerLabel) {
+      const timerDisplay = document.getElementById('timeNoticeTimerDisplay');
+      const timerLabelEl = document.getElementById('timeNoticeTimerLabel');
+      if (!timerDisplay || !timerLabelEl) return;
+
+      timerLabelEl.textContent = timerLabel;
+      if (noticeTimerInterval) clearInterval(noticeTimerInterval);
+
+      const updateTimer = () => {
+          const now = new Date();
+          const distance = targetDate - now;
+
+          if (distance < 0) {
+              clearInterval(noticeTimerInterval);
+              timerDisplay.textContent = "00:00:00";
+              // Only auto-close if the modal is still visible
+              if (document.getElementById('timeNoticeModal').style.display !== 'none') {
+                closeTimeNoticeModal();
+              }
+              return;
+          }
+
+          const hours = Math.floor(distance / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          timerDisplay.textContent = 
+              hours.toString().padStart(2, '0') + ":" + 
+              minutes.toString().padStart(2, '0') + ":" + 
+              seconds.toString().padStart(2, '0');
+      };
+      
+      updateTimer(); // Initial call
+      noticeTimerInterval = setInterval(updateTimer, 1000);
+  }
+
+  function checkTimeBasedNotice() {
+      const modal = document.getElementById('timeNoticeModal');
+      const titleEl = document.getElementById('timeNoticeTitle');
+      const messageEl = document.getElementById('timeNoticeMessage');
+      if (!modal || !titleEl || !messageEl) return;
+
+      // BST is UTC+6
+      const bstOffsetMinutes = 6 * 60;
+      const localDate = new Date();
+      const utcDate = localDate.getTime() + (localDate.getTimezoneOffset() * 60000);
+      const bstDate = new Date(utcDate + (bstOffsetMinutes * 60000));
+
+      const bstHour = bstDate.getHours();
+      const bstMinutes = bstDate.getMinutes();
+
+      let showNotice = false;
+      let noticeTitle = "";
+      let noticeMessage = "";
+      let targetTime, timerLabel;
+
+      const today8am_bst = new Date(bstDate);
+      today8am_bst.setHours(8, 0, 0, 0);
+
+      const today11pm_bst = new Date(bstDate);
+      today11pm_bst.setHours(23, 0, 0, 0);
+      
+      // Scenario 1 & 3 Part 1: Before 8 AM
+      if (bstHour < 8) {
+          showNotice = true;
+          noticeTitle = "Admin Offline";
+          noticeMessage = "The admin will be online at 8:00 AM (Bangladesh Time). Transactions and support will be available after that. Now you can do everything. All service is available Thank you.";
+          targetTime = today8am_bst;
+          timerLabel = "Time until admin is online";
+      } 
+      // Scenario 2: Between 10:30 PM and 11:00 PM
+      else if (bstHour === 22 && bstMinutes >= 30) {
+           showNotice = true;
+           noticeTitle = "Server Going Offline Soon";
+           noticeMessage = "The server will go offline for daily maintenance at 11:00 PM (Bangladesh Time). Please complete your activities. Transactions will not be approved overnight.";
+           targetTime = today11pm_bst;
+           timerLabel = "Time until server goes offline";
+      }
+      // Scenario 3 Part 2: After 11 PM
+      else if (bstHour >= 23) {
+          showNotice = true;
+          noticeTitle = "Admin Offline";
+          noticeMessage = "The admin is currently offline. We will be back at 8:00 AM (Bangladesh Time) to approve transactions and provide support. Thank you.";
+          
+          const tomorrow8am_bst = new Date(bstDate);
+          tomorrow8am_bst.setDate(bstDate.getDate() + 1);
+          tomorrow8am_bst.setHours(8, 0, 0, 0);
+          targetTime = tomorrow8am_bst;
+          timerLabel = "Time until admin is online";
+      }
+
+      if (showNotice) {
+          if (sessionStorage.getItem('timeNoticeClosed')) return; // Don't show if closed this session
+          
+          titleEl.innerHTML = `<i class="fas fa-clock"></i> ${noticeTitle}`;
+          messageEl.textContent = noticeMessage;
+          modal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+          startNoticeTimer(targetTime, timerLabel);
+      }
+  }
+  // --- End of Time-based Notice Functions ---
+
+
+  // --- All other functions ---
 
   function showAuthStatusPopup(message = "Processing...", showSpinner = true, iconClass = null, subMessage = null) {
     authStatusMessage.textContent = message;
@@ -1684,6 +2151,7 @@
         for (const pKey in productKeyMap) {
             const productInfo = productKeyMap[pKey];
             initialUserData[`${productInfo.firebaseUserKey}_expiredate`] = "";
+            initialUserData[`${productInfo.firebaseUserKey}_lastRedeemKey`] = ""; // Add last redeem key field
             if (productInfo.lifetimeFlag) {
                  initialUserData[productInfo.lifetimeFlag] = false;
             }
@@ -1751,7 +2219,6 @@
         }
     }
     
-    // Fallback if direct category match fails (less ideal, try to use targetProductKey)
     if (catLower.includes("premium")) return "Premium";
     if (catLower.includes("bypass")) return "Bypass";
     if (catLower.includes("unsafe")) return "Unsafe";
@@ -1879,6 +2346,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
           const productInfo = productKeyMap[pKey];
           const expiryDateStr = userData[`${productInfo.firebaseUserKey}_expiredate`];
           const isLifetime = productInfo.lifetimeFlag && userData[productInfo.lifetimeFlag] === true;
+          const lastRedeemKey = userData[`${productInfo.firebaseUserKey}_lastRedeemKey`] || "N/A";
 
           if (expiryDateStr || isLifetime) { 
               let expiryDate = null;
@@ -1888,12 +2356,13 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
 
               if (isLifetime || (expiryDate && expiryDate > now)) {
                   activeDeviceProducts.push({
-                      id: pKey, // This is the main key from productKeyMap, e.g., "Premium"
+                      id: pKey,
                       productFileLinkKey: pKey, 
                       productName: productInfo.displayName,
                       productTypeForDownload: productInfo.downloadKey, 
                       expiryDate: expiryDateStr, 
-                      isLifetime: isLifetime
+                      isLifetime: isLifetime,
+                      lastRedeemKey: lastRedeemKey
                   });
               } else if (expiryDate && expiryDate <= now && !isLifetime) {
                   sendExpiryNotification(currentUser, productInfo.displayName, pKey); 
@@ -1965,6 +2434,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
                       const productInfo_listener = productKeyMap[pKey_listener];
                       const expiryDateStr_listener = liveUserData[`${productInfo_listener.firebaseUserKey}_expiredate`];
                       const isLifetime_listener = productInfo_listener.lifetimeFlag && liveUserData[productInfo_listener.lifetimeFlag] === true;
+                      const lastRedeemKey_listener = liveUserData[`${productInfo_listener.firebaseUserKey}_lastRedeemKey`] || "N/A";
 
                       if (expiryDateStr_listener || isLifetime_listener) {
                           let expiryDate_listener = null;
@@ -1975,7 +2445,8 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
                               activeDeviceProducts.push({
                                   id: pKey_listener, productFileLinkKey: pKey_listener,
                                   productName: productInfo_listener.displayName, productTypeForDownload: productInfo_listener.downloadKey,
-                                  expiryDate: expiryDateStr_listener, isLifetime: isLifetime_listener
+                                  expiryDate: expiryDateStr_listener, isLifetime: isLifetime_listener,
+                                  lastRedeemKey: lastRedeemKey_listener
                               });
                           } else if (expiryDate_listener && expiryDate_listener <= nowLive && !isLifetime_listener) {
                               sendExpiryNotification(currentUser, productInfo_listener.displayName, pKey_listener);
@@ -2045,31 +2516,27 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
 
         if (product.isLifetime) {
             panel.classList.add('lifetime-product-card');
-            const badge = document.createElement('div');
-            badge.className = 'lifetime-badge';
-            badge.textContent = 'LIFETIME';
-            panel.appendChild(badge); 
         }
         
         const expiryElementId = `activeProductExpiry_${product.id.replace(/[^a-zA-Z0-9]/g, "")}`;
-        const latestRedeemKeyForThisProduct = "N/A"; 
+        const latestRedeemKeyForThisProduct = product.lastRedeemKey || "N/A";
 
         panel.innerHTML = `
             ${product.isLifetime ? '<div class="lifetime-badge">LIFETIME</div>' : ''}
             <div class="active-product-item">
-                <span class="label">PRODUCT :</span>
+                <span class="label">PRODUCT</span>
                 <span class="value">${product.productName}</span>
             </div>
             <div class="active-product-item">
-                <span class="label">LAST REDEEM KEY :</span>
+                <span class="label">LAST REDEEM KEY</span>
                 <span class="value">${latestRedeemKeyForThisProduct}</span>
             </div>
             <div class="active-product-item">
-                <span class="label">EXPIRE IN :</span>
+                <span class="label">EXPIRES IN</span>
                 <span class="value" id="${expiryElementId}">Loading...</span>
             </div>
             <div class="download-section">
-                <span class="download-now-text">DOWNLOAD NOW <i class="fas fa-chevron-right"></i></span>
+                <span class="download-now-text">DOWNLOAD NOW</span>
                 <button class="active-product-download-btn" data-productmapkey="${product.id}">DOWNLOAD</button>
             </div>
         `;
@@ -2079,8 +2546,9 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
         if (expiryDisplayElement) {
             updateCountdown(product, expiryDisplayElement, product.isLifetime); 
         }
+
         panel.querySelector('.active-product-download-btn').addEventListener('click', function() {
-            openDownloadPanelModal(this.dataset.productmapkey); // Pass the main product key
+            downloadProductPanel(this.dataset.productmapkey);
         });
     });
 }
@@ -2127,65 +2595,6 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
     }
   }
 
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    const maintenanceActive = await checkMaintenanceStatus();
-    if (maintenanceActive) {
-        return; 
-    }
-
-    sessionStorage.clear(); 
-    const rememberedUser = localStorage.getItem('rememberedUser');
-    const rememberedPass = localStorage.getItem('rememberedPass');
-    if (rememberedUser && rememberedPass) {
-        premiumLoginUserIdInput.value = rememberedUser; premiumLoginPasswordInput.value = rememberedPass;
-        premiumRememberMeCheckbox.checked = true;
-    }
-    const storedUserId = localStorage.getItem('currentUser');
-    if (storedUserId) {
-        database.ref('users/' + storedUserId).once('value')
-        .then(s => {
-            if (s.exists()) {
-                const userData = s.val();
-                if (userData.isBlocked === true) {
-                    localStorage.removeItem('currentUser'); 
-                    displayAuthScreen();
-                    showAuthErrorPopup("Login Required", "Your account was blocked. Please contact admin.");
-                } else {
-                    currentUser = storedUserId; premiumAuthContainer.classList.remove('visible');
-                    dashboardPanel.style.display = 'flex'; loginBg.classList.remove('active');
-                    dashboardBg.classList.add('active'); document.body.style.overflow = 'auto';
-                    showDashboardUI(storedUserId, userData);
-                }
-            } else { 
-                localStorage.removeItem('currentUser'); 
-                displayAuthScreen(); 
-            }
-        })
-        .catch(e => {
-            console.error("Auto-login DB fetch failed:", e);
-            localStorage.removeItem('currentUser'); 
-            displayAuthScreen();
-        });
-    } else { displayAuthScreen(); }
-
-    const categoryFilter = document.getElementById('generalStoreCategoryFilter');
-    if (categoryFilter) categoryFilter.addEventListener('change', displayFilteredStoreProducts);
-    const searchInput = document.getElementById('generalStoreSearchInput');
-    if (searchInput) searchInput.addEventListener('input', displayFilteredStoreProducts);
-
-    // Event listeners for buttons inside downloadPanelModal
-    document.querySelectorAll('#downloadPanelButtonsContainer .tools-list-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            if (!e.currentTarget.classList.contains('disabled-download')) {
-                 downloadProductPanel(e.currentTarget.dataset.productkey);
-            } else {
-                showGenericError("Subscription Required", "You do not have an active subscription for this panel.", true);
-            }
-        });
-    });
-  });
-
   function displayAuthScreen() {
     dashboardPanel.style.display = 'none'; premiumAuthContainer.classList.add('visible');
     premiumLoginForm.classList.remove('hidden-form', 'slide-out-left', 'slide-in-from-right');
@@ -2225,7 +2634,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
         let diff = targetExpiryTime - now;
 
         if (diff < 0) {
-            if (isLifetimeProduct) { // This case should ideally not happen if lifetime is truly active, but good for robustness
+            if (isLifetimeProduct) {
                 el.textContent = 'Expired - Renew Now!';
                 el.style.color = 'var(--warning)';
                 const cardPanel = el.closest('.active-product-display-panel');
@@ -2236,7 +2645,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
                         newBtn.textContent = 'RENEW NOW';
                         newBtn.style.backgroundColor = 'var(--warning)';
                         newBtn.style.color = 'var(--dark)';
-                        newBtn.dataset.productmapkey = ''; // Clear specific product key for general renew modal
+                        newBtn.dataset.productmapkey = '';
                         newBtn.onclick = () => openPackageRenewModal(); 
                         downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
                     }
@@ -2266,104 +2675,331 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
 
 
   function toggleSidebar() { const sb = document.getElementById('sidebar'), ov = document.getElementById('sidebarOverlay'); sb.classList.toggle('active'); ov.classList.toggle('active'); document.body.style.overflow = sb.classList.contains('active') ? 'hidden' : (dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'); }
-  const modalBg = document.getElementById('modalBg'); const addMoneyBonusMessageEl = document.getElementById('addMoneyBonusMessage'); const confirmBtnAddMoney = document.getElementById('confirmAddMoneyBtn'); const customAmountInputEl = document.getElementById('customAmountInput');
-  function openModal() { if (!currentUser) { alert('Please login first!'); return; } modalBg.style.display = 'flex'; customAmountInputEl.value = ''; confirmBtnAddMoney.disabled = true; addMoneyBonusMessageEl.style.display = 'none'; document.body.style.overflow = 'hidden'; }
-  customAmountInputEl.addEventListener('input', () => { const amount = parseFloat(customAmountInputEl.value); if (!isNaN(amount) && amount >= MIN_ADD_AMOUNT) { confirmBtnAddMoney.disabled = false; selectedAmount = amount; addMoneyBonusMessageEl.style.display = amount >= 100 ? 'flex' : 'none'; } else { confirmBtnAddMoney.disabled = true; selectedAmount = null; addMoneyBonusMessageEl.style.display = 'none'; } });
-  function confirmAdd() { if (selectedAmount === null || selectedAmount < MIN_ADD_AMOUNT) { showGenericError("Invalid Amount", `Please enter an amount greater than or equal to ৳${MIN_ADD_AMOUNT}.`, true); return; } if (!currentUser) { showGenericError("Error", "User not logged in.", true); return; } closeModal(); document.getElementById('paymentOptionsModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-  function closeModal() { modalBg.style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; }
-  function closePaymentOptionsModal() { document.getElementById('paymentOptionsModal').style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; }
+  
+  function openAddMoneyFlow() {
+      if (!currentUser) { alert('Please login first!'); return; }
+      document.getElementById('paymentOptionsModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+  }
 
-  async function copyToClipboard(textToCopy, buttonElement) {
-    const originalButtonHTML = buttonElement.innerHTML; 
+  function selectPaymentMethod(method) {
+      currentPaymentMethod = method;
+      closePaymentOptionsModal();
+      
+      const amountModal = document.getElementById('modalBg');
+      const amountInput = document.getElementById('customAmountInput');
+      const cryptoInfo = document.getElementById('cryptoInfoSection');
+      const bdtBonusMsg = document.getElementById('addMoneyBonusMessage');
+      const modalTitle = document.getElementById('modalTitle');
+      const confirmBtn = document.getElementById('confirmAddMoneyBtn');
 
-    try {
-        if (navigator.clipboard && window.isSecureContext) { // navigator.clipboard requires HTTPS
-            await navigator.clipboard.writeText(textToCopy);
-            buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            console.log('Text copied to clipboard via navigator.clipboard');
-        } else {
-            // Fallback for non-secure contexts or older browsers
-            const textArea = document.createElement("textarea");
-            textArea.value = textToCopy;
-            textArea.style.position = "fixed"; // Prevent scrolling to bottom
-            textArea.style.left = "-9999px"; // Move out of screen
-            textArea.style.top = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
-                    buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!'; // Keep feedback consistent
-                    console.log('Text copied via execCommand fallback');
-                } else {
-                    throw new Error('execCommand failed');
-                }
-            } catch (err) {
-                console.error('Fallback: Oops, unable to copy', err);
-                buttonElement.innerHTML = '<i class="fas fa-times"></i> Failed';
-                alert('Could not copy text. Please copy manually.');
-            }
-            document.body.removeChild(textArea);
-        }
-    } catch (err) {
-        console.error('Failed to copy text: ', err);
-        buttonElement.innerHTML = '<i class="fas fa-times"></i> Failed';
-        alert('Could not copy text. Please copy manually.');
-    } finally {
-        buttonElement.disabled = true;
-        setTimeout(() => {
-            buttonElement.innerHTML = originalButtonHTML;
-            buttonElement.disabled = false;
-        }, 2000); // Revert button after 2 seconds
-    }
-}
+      amountInput.value = '';
+      confirmBtn.disabled = true;
 
-  function showPaymentGateway(method) {
-    currentPaymentMethod = method;
+      if (method === 'crypto' || method === 'binance') {
+          modalTitle.innerHTML = method === 'binance' 
+            ? '<img src="https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/download.png?alt=media&token=8f650e93-5df8-4aa1-9b2f-fccf72aac663" alt="Binance" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 10px;"> Enter USD Amount'
+            : '<i class="fab fa-bitcoin"></i> Enter USD Amount';
+          amountInput.placeholder = `Enter Amount (Min $${MIN_ADD_AMOUNT_USD})`;
+          amountInput.min = MIN_ADD_AMOUNT_USD;
+          amountInput.step = "0.01";
+          cryptoInfo.style.display = 'block';
+          document.getElementById('cryptoCalculatedAmount').textContent = 'You will receive: ৳0.00';
+          bdtBonusMsg.style.display = 'none';
+      } else {
+          modalTitle.innerHTML = '<i class="fas fa-wallet"></i> Enter Amount';
+          amountInput.placeholder = `Enter Amount (Min ৳${MIN_ADD_AMOUNT_BDT})`;
+          amountInput.min = MIN_ADD_AMOUNT_BDT;
+          amountInput.step = "10";
+          cryptoInfo.style.display = 'none';
+          bdtBonusMsg.style.display = 'none';
+      }
+      
+      amountModal.style.display = 'flex';
+  }
+
+  function confirmAdd() {
+      const amountVal = parseFloat(document.getElementById('customAmountInput').value);
+      
+      if (currentPaymentMethod === 'crypto' || currentPaymentMethod === 'binance') {
+          if (isNaN(amountVal) || amountVal < MIN_ADD_AMOUNT_USD) {
+              showGenericError("Invalid Amount", `Please enter an amount greater than or equal to $${MIN_ADD_AMOUNT_USD}.`, true);
+              return;
+          }
+          selectedAmount = {
+              usd: amountVal,
+              bdt: amountVal * USD_TO_BDT_RATE
+          };
+      } else {
+          if (isNaN(amountVal) || amountVal < MIN_ADD_AMOUNT_BDT) {
+              showGenericError("Invalid Amount", `Please enter an amount greater than or equal to ৳${MIN_ADD_AMOUNT_BDT}.`, true);
+              return;
+          }
+          selectedAmount = amountVal;
+      }
+
+      if (!currentUser) { showGenericError("Error", "User not logged in.", true); return; }
+      
+      closeModal();
+      showPaymentInstructions();
+  }
+
+  function showPaymentInstructions() {
     const titleEl = document.getElementById('paymentGatewayTitle');
     const instructionsEl = document.getElementById('paymentGatewayInstructions');
     const submitBtn = document.getElementById('submitPaymentTxnBtn');
-    document.getElementById('paymentTransactionIdInput').value = '';
+    const proofSelector = document.getElementById('proofTypeSelector');
+    
+    toggleProofInput('id');
+    proofSelector.querySelector('input[value="id"]').checked = true;
 
     let instructions = "";
     let methodTitle = "";
     const recipientNumber = "01647712206"; 
-    const amountToPay = selectedAmount;
+    const cryptoWalletAddress = "TRWZqTgWSVeBXMPEkhSzcqXyfsnuWW3o6t";
+    const cryptoWalletQR = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/IMG_20250607_195453.jpg?alt=media&token=b4716944-0de2-463a-b531-801b17ece88d";
+    const binancePayId = "505820464";
+
+    const amountToPay = (currentPaymentMethod === 'crypto' || currentPaymentMethod === 'binance') ? `$${selectedAmount.usd.toFixed(2)}` : `৳${selectedAmount}`;
     const invoiceId = generateRandomCodeForInvoice(10); 
     let logoUrl = "";
 
     submitBtn.classList.remove('bkash-style', 'nagad-style');
-    const copyBtnHTML = `<button onclick="copyToClipboard('${recipientNumber}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy</button>`;
+    const copyNumberBtnHTML = `<button onclick="copyToClipboard('${recipientNumber}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy Number</button>`;
+    const copyAddressBtnHTML = `<button onclick="copyToClipboard('${cryptoWalletAddress}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy Address</button>`;
+    const copyBinanceIdBtnHTML = `<button onclick="copyToClipboard('${binancePayId}', this)" class="inline-copy-button"><i class="fas fa-copy"></i> Copy ID</button>`;
 
-    switch (method) {
-        case 'bkash':
-            logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.png?alt=media&token=fc1cd24b-930a-4547-8d09-f544ef5d2165";
-            methodTitle = "Bkash Payment";
-            instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId} (KILLERX X OFFICIAL)</strong></p><p><strong>টাকার পরিমাণ: ৳${amountToPay}.00</strong></p><hr><p>*247# ডায়াল করে আপনার BKASH মোবাইল মেনুতে যান অথবা BKASH অ্যাপে যান।</p><p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> ${copyBtnHTML}</p><p>টাকার পরিমাণ: ৳${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার BKASH মোবাইল মেনু পিন লিখুন।</p><p> সবকিছু ঠিক থাকলে, আপনি BKASH থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</p><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> দিন এবং নিচের <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
-            submitBtn.classList.add('bkash-style');
-            break;
-        case 'nagad':
-            logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.jpeg?alt=media&token=98b94d4c-afc8-4830-9842-627100bd8c49";
-            methodTitle = "Nagad Payment";
-            instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId} (KILLERX X OFFICIAL)</strong></p><p><strong>টাকার পরিমাণ: ৳${amountToPay}.00</strong></p><hr><p>*167# ডায়াল করে আপনার NAGAD মোবাইল মেনুতে যান অথবা NAGAD অ্যাপে যান।</p><p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> ${copyBtnHTML}</p><p>টাকার পরিমাণ: ৳${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার NAGAD মোবাইল মেনু পিন লিখুন।</p><p>সবকিছু ঠিক থাকলে, আপনি NAGAD থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</p><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> দিন এবং নিচের <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
-            submitBtn.classList.add('nagad-style');
-            break;
-        case 'rocket':
-            logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitl.jpeg?alt=media&token=c0452c5b-21d5-47d7-8966-adf7f8df07ee";
-            methodTitle = "Rocket Payment";
-            instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId} (KILLERX X OFFICIAL)</strong></p><p><strong>টাকার পরিমাণ: ৳${amountToPay}.00</strong></p><hr><p>*322# ডায়াল করে আপনার ROCKET মোবাইল মেনুতে যান অথবা ROCKET অ্যাপে যান।</p><p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> ${copyBtnHTML}</p><p>টাকার পরিমাণ: ৳${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার ROCKET মোবাইল মেনু পিন লিখুন।</p><p>সবকিছু ঠিক থাকলে, আপনি ROCKET থেকে একটি নিশ্চিতকরণ বার্তা পাবেন।</p><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> দিন এবং নিচের <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
-            break;
+    proofSelector.style.display = 'flex';
+    document.getElementById('paymentTransactionIdInput').placeholder = "Enter Transaction ID / Hash";
+    document.getElementById('paymentSenderNumberInput').placeholder = "Enter Sender Info (e.g., number, name, note)";
+
+
+    if (currentPaymentMethod === 'crypto') {
+        logoUrl = "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png";
+        methodTitle = "Crypto (USDT TRC20) Payment";
+        instructions = `<p><strong>Amount to Pay: ${amountToPay} USDT</strong></p><p><strong>You will receive: ~৳${selectedAmount.bdt.toFixed(2)}</strong></p><hr><p>Please send exactly <strong>${amountToPay} USDT</strong> to the following TRC20 address.</p><p><strong>Address:</strong> ${cryptoWalletAddress} ${copyAddressBtnHTML}</p><p><strong>Network:</strong> TRC20 (Tron)</p><div class="qr-code-container"><img src="${cryptoWalletQR}" alt="USDT TRC20 Wallet QR Code" onclick="showQrCodePopup('${cryptoWalletQR}')" style="cursor: pointer;"></div><hr><p>After sending, paste the <strong>Transaction Hash (TxID)</strong> OR upload a <strong>Screenshot</strong> below and submit.</p>`;
+    } else if (currentPaymentMethod === 'binance') {
+        logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/download.png?alt=media&token=8f650e93-5df8-4aa1-9b2f-fccf72aac663";
+        methodTitle = "Binance Pay";
+        instructions = `<p><strong>Amount to Pay: ${amountToPay} USDT</strong></p><p><strong>You will receive: ~৳${selectedAmount.bdt.toFixed(2)}</strong></p><hr><p>Please send exactly <strong>${amountToPay} USDT</strong> using Binance Pay.</p><p><strong>Binance Pay ID:</strong> ${binancePayId} ${copyBinanceIdBtnHTML}</p><hr><p>After sending, please upload a <strong>Screenshot</strong> of the successful payment below.</p>`;
+        toggleProofInput('screenshot');
+        proofSelector.querySelector('input[value="screenshot"]').checked = true;
+    } else {
+        let sendMoneyInstructions = `<p>"Send Money"-এ ক্লিক করুন।</p><p>প্রাপক নম্বর হিসেবে এই নম্বরটি লিখুন: <strong>${recipientNumber}</strong> ${copyNumberBtnHTML}</p><p>টাকার পরিমাণ: ${amountToPay}.00</p><p>নিশ্চিত করতে এখন আপনার পিন লিখুন।</p><hr><p>এখন নিচের বক্সে আপনার <strong>Transaction ID</strong> অথবা পেমেন্টের <strong>Screenshot ও Sender Number</strong> দিন এবং <strong>Submit</strong> বাটনে ক্লিক করুন।</p>`;
+
+        switch (currentPaymentMethod) {
+            case 'bkash':
+                logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.png?alt=media&token=fc1cd24b-930a-4547-8d09-f544ef5d2165";
+                methodTitle = "Bkash Payment";
+                instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId}</strong></p><p><strong>টাকার পরিমাণ: ${amountToPay}.00</strong></p><hr><p>*247# ডায়াল করে অথবা BKASH অ্যাপে যান।</p>${sendMoneyInstructions}`;
+                submitBtn.classList.add('bkash-style');
+                break;
+            case 'nagad':
+                logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitled.jpeg?alt=media&token=98b94d4c-afc8-4830-9842-627100bd8c49";
+                methodTitle = "Nagad Payment";
+                instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId}</strong></p><p><strong>টাকার পরিমাণ: ${amountToPay}.00</strong></p><hr><p>*167# ডায়াল করে অথবা NAGAD অ্যাপে যান।</p>${sendMoneyInstructions}`;
+                submitBtn.classList.add('nagad-style');
+                break;
+            case 'rocket':
+                logoUrl = "https://firebasestorage.googleapis.com/v0/b/ng-mods-x2.appspot.com/o/Untitl.jpeg?alt=media&token=c0452c5b-21d5-47d7-8966-adf7f8df07ee";
+                methodTitle = "Rocket Payment";
+                instructions = `<p><strong>ইনভয়েস আইডি: ${invoiceId}</strong></p><p><strong>টাকার পরিমাণ: ${amountToPay}.00</strong></p><hr><p>*322# ডায়াল করে অথবা ROCKET অ্যাপে যান।</p>${sendMoneyInstructions}`;
+                break;
+        }
     }
-    titleEl.innerHTML = `<img src="${logoUrl}" alt="${method}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 10px; vertical-align: middle;"> ${methodTitle}`;
+
+    titleEl.innerHTML = `<img src="${logoUrl}" alt="${currentPaymentMethod}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 10px; vertical-align: middle;"> ${methodTitle}`;
     instructionsEl.innerHTML = instructions;
-    document.getElementById('paymentOptionsModal').style.display = 'none';
     document.getElementById('paymentGatewayModal').style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
+  function closeModal() { modalBg.style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; }
+  function closePaymentOptionsModal() { document.getElementById('paymentOptionsModal').style.display = 'none'; if(document.getElementById('modalBg').style.display !== 'flex') {document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';} }
   function closePaymentGatewayModal() { document.getElementById('paymentGatewayModal').style.display = 'none'; document.getElementById('paymentOptionsModal').style.display = 'flex'; }
-  async function submitPaymentTransactionId() { if (!currentUser || selectedAmount === null || selectedAmount < MIN_ADD_AMOUNT || !currentPaymentMethod) { showGenericError("Error", "Session expired or invalid data. Please try again.", true); return; } const paymentTxnId = document.getElementById('paymentTransactionIdInput').value.trim(); if (!paymentTxnId) { showGenericError("Input Required", "Please enter the Transaction ID.", true); return; } const submitBtn = document.getElementById('submitPaymentTxnBtn'); submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...'; try { const allTransactionsRef = database.ref('all_transactions/' + paymentTxnId); const snapshot = await allTransactionsRef.once('value'); if (snapshot.exists()) { showGenericError("Duplicate Transaction ID", "This Transaction ID has already been submitted. Please check and try again or contact support if you believe this is an error.", true); submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Transaction ID'; return; } const userTransactionsRef = database.ref('transactions/' + currentUser); const newTransactionRef = userTransactionsRef.push(); const transactionKey = newTransactionRef.key; const transactionData = { amount: selectedAmount, status: "pending_verification", date: new Date().toISOString(), userId: currentUser, paymentMethod: currentPaymentMethod, paymentTransactionId: paymentTxnId, transactionKey: transactionKey }; const allTransactionEntry = { userId: currentUser, amount: selectedAmount, date: new Date().toISOString(), status: "pending_verification", paymentMethod: currentPaymentMethod, originalUserTransactionKey: transactionKey, userEnteredTxnId: paymentTxnId }; const updates = {}; updates['transactions/' + currentUser + '/' + transactionKey] = transactionData; updates['all_transactions/' + paymentTxnId] = allTransactionEntry; await database.ref().update(updates); showGenericSuccess("Submission Successful!", "Your transaction ID has been submitted. Please wait for admin to verify your payment and credit your account. This may take some time.", true); document.getElementById('paymentGatewayModal').style.display = 'none'; document.getElementById('paymentOptionsModal').style.display = 'none'; document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden'; confirmBtnAddMoney.disabled = true; customAmountInputEl.value = ''; selectedAmount = null; currentPaymentMethod = null; } catch (error) { console.error("Error submitting transaction ID:", error); showGenericError("Submission Failed", "An error occurred: " + error.message + ". Please try again.", true); } finally { if(submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Transaction ID'; } } }
+  function showQrCodePopup(imageUrl) {
+    document.getElementById('qrCodePopupImage').src = imageUrl;
+    document.getElementById('qrCodePopupModal').style.display = 'flex';
+  }
+  function closeQrCodePopup() {
+    document.getElementById('qrCodePopupModal').style.display = 'none';
+  }
+
+  async function copyToClipboard(textToCopy, buttonElement) {
+    const originalButtonHTML = buttonElement.innerHTML; 
+    try {
+        if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(textToCopy); } else {
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy; textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "-9999px";
+            document.body.appendChild(textArea); textArea.focus(); textArea.select();
+            try { if (!document.execCommand('copy')) { throw new Error('execCommand failed'); }
+            } catch (err) { console.error('Fallback: Oops, unable to copy', err); alert('Could not copy text.'); }
+            document.body.removeChild(textArea);
+        }
+        buttonElement.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    } catch (err) {
+        console.error('Failed to copy text: ', err); buttonElement.innerHTML = '<i class="fas fa-times"></i> Failed';
+    } finally {
+        buttonElement.disabled = true;
+        setTimeout(() => { buttonElement.innerHTML = originalButtonHTML; buttonElement.disabled = false; }, 2000);
+    }
+}
+
+  function toggleProofInput(type) {
+    const idContainer = document.getElementById('idInputContainer');
+    const screenshotContainer = document.getElementById('screenshotInputContainer');
+    const submitBtn = document.getElementById('submitPaymentTxnBtn');
+    
+    if (type === 'id') {
+        idContainer.style.display = 'block';
+        screenshotContainer.style.display = 'none';
+        document.getElementById('paymentScreenshotInput').value = ''; 
+        document.getElementById('paymentSenderNumberInput').value = '';
+        document.getElementById('fileNameDisplay').textContent = 'No file chosen';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+    } else { // screenshot
+        idContainer.style.display = 'none';
+        screenshotContainer.style.display = 'block';
+        document.getElementById('paymentTransactionIdInput').value = ''; 
+        submitBtn.innerHTML = '<i class="fas fa-upload"></i> Submit Proof';
+    }
+}
+  
+  async function sendScreenshotToTelegram(file, caption) {
+    const formData = new FormData();
+    formData.append('chat_id', chatId);
+    formData.append('photo', file);
+    formData.append('caption', caption);
+    formData.append('parse_mode', 'Markdown');
+
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+            method: 'POST',
+            body: formData,
+        });
+        const result = await response.json();
+        if (result.ok) {
+            console.log('Screenshot sent to Telegram successfully.');
+            return true;
+        } else {
+            console.error('Telegram API error:', result.description);
+            return false;
+        }
+    } catch (error) {
+        console.error('Failed to send screenshot to Telegram:', error);
+        return false;
+    }
+  }
+
+  async function submitPaymentTransactionId() {
+    if (!currentUser || selectedAmount === null || !currentPaymentMethod) {
+        showGenericError("Error", "Session expired or invalid data. Please try again.", true);
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitPaymentTxnBtn');
+    const proofType = document.querySelector('input[name="proofType"]:checked').value;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+        const userTransactionsRef = database.ref('transactions/' + currentUser);
+        const newTransactionRef = userTransactionsRef.push();
+        const transactionKey = newTransactionRef.key;
+
+        let transactionData = {
+            status: "pending_verification",
+            date: new Date().toISOString(),
+            userId: currentUser,
+            paymentMethod: currentPaymentMethod,
+            transactionKey: transactionKey,
+            proof: { type: proofType }
+        };
+
+        if (currentPaymentMethod === 'crypto' || currentPaymentMethod === 'binance') {
+            transactionData.amount = selectedAmount.bdt;
+            transactionData.proof.usdAmount = selectedAmount.usd;
+        } else {
+            transactionData.amount = selectedAmount;
+        }
+
+        let allTransactionsKey = transactionKey;
+
+        if (proofType === 'id') {
+            const proofValue = document.getElementById('paymentTransactionIdInput').value.trim();
+            if (!proofValue) {
+                throw new Error("Please enter the Transaction ID or Hash.");
+            }
+            const allTransactionsRef = database.ref('all_transactions/' + proofValue);
+            const snapshot = await allTransactionsRef.once('value');
+            if (snapshot.exists()) {
+                throw new Error("This Transaction ID/Hash has already been submitted.");
+            }
+            transactionData.proof.value = proofValue;
+            allTransactionsKey = proofValue;
+        } else { // screenshot
+            const senderNumber = document.getElementById('paymentSenderNumberInput').value.trim();
+            const screenshotFile = document.getElementById('paymentScreenshotInput').files[0];
+            
+            if (!senderNumber && currentPaymentMethod !== 'binance' && currentPaymentMethod !== 'crypto') {
+                 throw new Error("Please enter the sender's phone number.");
+            }
+            if (!screenshotFile) throw new Error("Please select a screenshot file to upload.");
+            if (screenshotFile.size > 5 * 1024 * 1024) throw new Error("Screenshot file size cannot exceed 5MB.");
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending Proof...';
+            
+            const tgMethod = currentPaymentMethod.charAt(0).toUpperCase() + currentPaymentMethod.slice(1);
+            const tgAmount = (currentPaymentMethod === 'crypto' || currentPaymentMethod === 'binance') 
+                ? `$${transactionData.proof.usdAmount.toFixed(2)} (~৳${transactionData.amount.toFixed(2)})`
+                : `৳${transactionData.amount.toFixed(2)}`;
+            const senderInfo = senderNumber ? `\nSender/Note: \`${senderNumber}\`` : '';
+
+            const caption = `New Payment Proof\n-----------------------\nUser: \`${currentUser}\`\nAmount: ${tgAmount}\nMethod: ${tgMethod}${senderInfo}\nTxn Key: \`${transactionKey}\``;
+            
+            await sendScreenshotToTelegram(screenshotFile, caption);
+            transactionData.proof.value = "Proof sent to Telegram"; 
+            transactionData.proof.senderNumber = senderNumber;
+        }
+
+        const allTransactionEntry = { ...transactionData, originalUserTransactionKey: transactionKey };
+        delete allTransactionEntry.transactionKey;
+
+        const updates = {};
+        updates['transactions/' + currentUser + '/' + transactionKey] = transactionData;
+        updates['all_transactions/' + allTransactionsKey] = allTransactionEntry;
+
+        await database.ref().update(updates);
+        
+        showGenericSuccess("Submission Successful!", "Your proof has been submitted. Please wait for an admin to verify your payment. This may take some time.", true);
+        
+        document.getElementById('paymentGatewayModal').style.display = 'none';
+        document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
+        selectedAmount = null;
+        currentPaymentMethod = null;
+
+    } catch (error) {
+        console.error("Error submitting transaction proof:", error);
+        showGenericError("Submission Failed", error.message, true);
+    } finally {
+        if(submitBtn){
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+        }
+    }
+  }
+
+
+  document.getElementById('paymentScreenshotInput').addEventListener('change', function() {
+      const fileNameDisplay = document.getElementById('fileNameDisplay');
+      if (this.files.length > 0) {
+          fileNameDisplay.textContent = this.files[0].name;
+      } else {
+          fileNameDisplay.textContent = 'No file chosen';
+      }
+  });
+
 
   function showGenericSuccess(title, message, positionTop = false) {
     const modal = document.getElementById('genericSuccessModal');
@@ -2403,7 +3039,55 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
     document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
   }
 
-  function showHistory() { if (!currentUser) return; const hModal = document.getElementById('historyModal'), hList = document.getElementById('historyList'); hList.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading ...</p></div>`; hModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; transactionListener = database.ref('transactions/' + currentUser).orderByChild('date').on('value', s => { const txns = s.val(); hList.innerHTML = ''; if (!txns || Object.keys(txns).length === 0) { hList.innerHTML = `<div class="empty-history"><i class="fas fa-hourglass-half"></i><p>No transactions</p></div>`; return; } Object.entries(txns).map(([id,tx])=>({id,...tx})).sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx => { const el = document.createElement('div'); el.className = `transaction-item status-${tx.status.replace(/\s+/g, '_')}`; const dt = new Date(tx.date); let paymentDetails = ""; if (tx.paymentMethod && tx.paymentTransactionId) { paymentDetails = `<div style="font-size: 11px; color: ${el.classList.contains('status-pending_verification') || el.classList.contains('status-pending') ? 'rgba(45,52,54,0.8)' : 'rgba(255,255,255,0.6)'}; margin-top: 3px; text-transform: capitalize;">Method: ${tx.paymentMethod} | TxnID: ${tx.paymentTransactionId}</div>`; } let statusIcon = 'fa-hourglass-half'; if (tx.status === 'completed') statusIcon = 'fa-check-circle'; else if (tx.status === 'pending_verification') statusIcon = 'fa-user-clock'; else if (tx.status === 'failed' || tx.status === 'cancelled') statusIcon = 'fa-times-circle'; el.innerHTML = `<div class="transaction-left"><div class="transaction-icon"><i class="fas ${statusIcon}"></i></div><div class="transaction-info"><div class="transaction-amount-status"><span class="transaction-amount">${tx.amount} Taka</span><span class="transaction-status" style="${tx.status === 'pending_verification' || tx.status === 'pending' ? 'color:var(--dark);font-weight:500;' : (tx.status === 'completed' ? 'color:var(--success);' : '')}">${tx.status.replace('_', ' ')}</span></div><div class="transaction-date">${dt.toLocaleDateString()+' '+dt.toLocaleTimeString()}</div>${paymentDetails}</div></div><div class="transaction-right"><i class="fas fa-chevron-right"></i></div>`; hList.appendChild(el); }); }, e => { hList.innerHTML = `<div class="empty-history"><i class="fas fa-exclamation-triangle"></i><p>Failed to load</p></div>`; console.error('History error:', e); }); }
+  function showHistory() { 
+    if (!currentUser) return; 
+    const hModal = document.getElementById('historyModal');
+    const hList = document.getElementById('historyList'); 
+    hList.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading ...</p></div>`; 
+    hModal.style.display = 'flex'; 
+    document.body.style.overflow = 'hidden'; 
+    transactionListener = database.ref('transactions/' + currentUser).orderByChild('date').on('value', s => { 
+        const txns = s.val(); 
+        hList.innerHTML = ''; 
+        if (!txns || Object.keys(txns).length === 0) { 
+            hList.innerHTML = `<div class="empty-history"><i class="fas fa-hourglass-half"></i><p>No transactions</p></div>`; 
+            return; 
+        } 
+        Object.entries(txns).map(([id,tx])=>({id,...tx})).sort((a,b)=>new Date(b.date)-new Date(a.date)).forEach(tx => { 
+            const el = document.createElement('div'); 
+            el.className = `transaction-item status-${tx.status.replace(/\s+/g, '_')}`; 
+            const dt = new Date(tx.date); 
+            let paymentDetails = ""; 
+            const styleForText = `color: ${el.classList.contains('status-pending_verification') || el.classList.contains('status-pending') ? 'rgba(45,52,54,0.8)' : 'rgba(255,255,255,0.6)'};`; 
+            
+            if (tx.proof && tx.proof.type) {
+                let proofDisplay = '';
+                if (tx.proof.type === 'id') {
+                    proofDisplay = `TxnID/Hash: ${tx.proof.value}`;
+                } else if (tx.proof.type === 'screenshot') {
+                    proofDisplay = `Sender: ${tx.proof.senderNumber || 'N/A'} (Proof on Telegram)`;
+                }
+                paymentDetails = `<div style="font-size: 11px; ${styleForText} margin-top: 3px; text-transform: capitalize;">Method: ${tx.paymentMethod} | ${proofDisplay}</div>`;
+            }
+
+            let statusIcon = 'fa-hourglass-half'; 
+            if (tx.status === 'completed') statusIcon = 'fa-check-circle'; 
+            else if (tx.status === 'pending_verification') statusIcon = 'fa-user-clock'; 
+            else if (tx.status === 'failed' || tx.status === 'cancelled') statusIcon = 'fa-times-circle'; 
+            
+            const amountText = (tx.paymentMethod === 'crypto' || tx.paymentMethod === 'binance') && tx.proof.usdAmount 
+                ? `${tx.amount} Taka ($${tx.proof.usdAmount.toFixed(2)})`
+                : `${tx.amount} Taka`;
+                
+            el.innerHTML = `<div class="transaction-left"><div class="transaction-icon"><i class="fas ${statusIcon}"></i></div><div class="transaction-info"><div class="transaction-amount-status"><span class="transaction-amount">${amountText}</span><span class="transaction-status" style="${tx.status === 'pending_verification' || tx.status === 'pending' ? 'color:var(--dark);font-weight:500;' : (tx.status === 'completed' ? 'color:var(--success);' : '')}">${tx.status.replace('_', ' ')}</span></div><div class="transaction-date">${dt.toLocaleDateString()+' '+dt.toLocaleTimeString()}</div>${paymentDetails}</div></div><div class="transaction-right"><i class="fas fa-chevron-right"></i></div>`; 
+            hList.appendChild(el); 
+        }); 
+    }, e => { 
+        hList.innerHTML = `<div class="empty-history"><i class="fas fa-exclamation-triangle"></i><p>Failed to load</p></div>`; 
+        console.error('History error:', e); 
+    }); 
+}
+
   function closeHistoryModal() { if (transactionListener&&currentUser) database.ref('transactions/'+currentUser).off('value',transactionListener); transactionListener=null; document.getElementById('historyModal').style.display='none'; document.body.style.overflow= dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';}
   
   function showNotifications() {
@@ -2560,7 +3244,8 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
         }
 
         const productInfoToRedeem = productKeyMap[productMapKey];
-        let userFirebaseUpdates = { failedRedeemAttempts: 0 };
+        let userFirebaseUpdates = { failedRedeemAttempts:
+        0 };
         let successMessage = "";
         let amountAddedForBonus = 0;
 
@@ -2591,6 +3276,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
             const newExpiryDateISO = new Date(newExpiryTime).toISOString();
             
             userFirebaseUpdates[`${productInfoToRedeem.firebaseUserKey}_expiredate`] = newExpiryDateISO;
+            userFirebaseUpdates[`${productInfoToRedeem.firebaseUserKey}_lastRedeemKey`] = code;
             successMessage += `আপনার "${productInfoToRedeem.displayName}" প্যাকেজের মেয়াদ সফলভাবে ${daysForProduct} দিন বৃদ্ধি করা হয়েছে।`;
 
             if (redeemData.isLifetimeProductSource === true && productInfoToRedeem.lifetimeFlag) {
@@ -2599,6 +3285,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
             }
         }
         
+                
         await userRef.update(userFirebaseUpdates);
 
         const historyEntry = {
@@ -2836,10 +3523,7 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
     let foundActivePanelForDownload = false;
     let specificPanelName = "";
 
-    // Populate activeDeviceProducts if it's not up-to-date (e.g., direct call without full UI refresh)
-    // This is a simplified check; a more robust solution would re-fetch user data if needed.
     if (!activeDeviceProducts || activeDeviceProducts.length === 0) {
-        // Attempt to repopulate, or rely on the fact that it should be populated by showDashboardUI
         console.warn("activeDeviceProducts is empty in openDownloadPanelModal. May show incorrect availability.");
     }
 
@@ -2853,19 +3537,13 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
         if (isActive) {
             button.style.display = 'flex';
             button.classList.remove('disabled-download');
-            // Ensure onclick is set (it's already set in DOMContentLoaded, but good for safety)
-            // button.onclick = () => downloadProductPanel(pKey);
             foundActivePanelForDownload = true;
             if (specificProductMapKey && specificProductMapKey === pKey) {
                 specificPanelName = productInfo.displayName;
             }
         } else {
-            // If you want to show all buttons but disable unavailable ones:
             button.style.display = 'flex'; // Show all
             button.classList.add('disabled-download');
-            // button.onclick = () => showGenericError("Subscription Required", `You do not have an active subscription for ${productInfo.displayName}.`, true);
-            // For now, per "shudu je user jei product kince oitai downkoad dite pabe", we hide them.
-            // button.style.display = 'none'; // Keep hidden if not active
         }
     });
 
@@ -2888,24 +3566,41 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
     document.body.style.overflow = dashboardPanel.style.display === 'flex' ? 'auto' : 'hidden';
   }
   
-  async function downloadProductPanel(productKeyToDownload) { 
+  async function downloadProductPanel(productKeyToDownload) {
       if (!currentUser || !productKeyToDownload) {
           showGenericError("Error", "Cannot download panel. Please log in or select a panel.", true);
           return;
       }
-      
+
       const productInfo = productKeyMap[productKeyToDownload];
-      
-      if (!productInfo || !productInfo.firebaseDownloadLinkKey) {
+      if (!productInfo) {
           showGenericError("Configuration Error", `Download configuration for ${productKeyToDownload} not found.`, true);
           return;
       }
 
+      const firebaseKeyMap = {
+          "Premium": "Premium",
+          "Bypass": "Bypass",
+          "Unsafe": "Unsafe",
+          "BasicSniper": "BSniper",
+          "BasicAimbot": "BAimbot",
+          "Mobile": "Mobile"
+      };
+
+      const firebaseLinkKey = firebaseKeyMap[productKeyToDownload];
+      if (!firebaseLinkKey) {
+          showGenericError("Configuration Error", `Firebase link key for ${productKeyToDownload} is not defined.`, true);
+          return;
+      }
+
       try {
-          const linkSnap = await database.ref(`Panel_update_url/${productInfo.firebaseDownloadLinkKey}`).once('value');
+          const linkSnap = await database.ref(`USERPANEL/${firebaseLinkKey}`).once('value');
           if (linkSnap.exists() && linkSnap.val()) {
               window.open(linkSnap.val(), '_blank');
-              closeDownloadPanelModal(); // Close modal after initiating download
+              const downloadModal = document.getElementById('downloadPanelModal');
+              if (downloadModal && downloadModal.style.display === 'flex') {
+                  closeDownloadPanelModal();
+              }
           } else {
               showGenericError("Link Not Found", `Download link for ${productInfo.displayName} is not available. Please contact support.`, true);
           }
@@ -2915,10 +3610,15 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
       }
   }
 
+
   function openHelpline() {
       window.open('https://wa.me/8801889221262', '_blank'); 
   }
 
+  function generateKeyFromTitle(title) {
+    if (!title) return '';
+    return title.toUpperCase().replace(/[\s\(\)\-]/g, '');
+  }
 
   function openGeneralStoreModal() {
       if (!currentUser) { alert('Please login first!'); return; }
@@ -2938,8 +3638,13 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
       productListEl.innerHTML = `<div class="empty-history"><i class="fas fa-spinner fa-spin"></i><p>Loading products...</p></div>`;
 
       try {
-          const snapshot = await database.ref('storeProducts').once('value');
-          const productsData = snapshot.val();
+          const [productsSnap, stocksSnap] = await Promise.all([
+              database.ref('storeProducts').once('value'),
+              database.ref('StocksRdiscount').once('value')
+          ]);
+
+          const productsData = productsSnap.val();
+          stocksAndDiscountsData = stocksSnap.val() || {};
           allStoreProducts = [];
           const categories = new Set();
           categories.add("All Categories"); 
@@ -2948,8 +3653,6 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
               Object.keys(productsData).forEach(key => {
                   const product = productsData[key];
                   product.firebaseKey = key; 
-                  
-                  // Use targetProductKey from Firebase if available, otherwise try to map from category
                   product.productMapKey = product.targetProductKey || getProductFileLinkKeyFromCategory(product.category);
 
                   if (product.title && typeof product.price === 'number' && product.productMapKey && product.productValidity) {
@@ -2967,7 +3670,6 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
           categories.forEach(category => {
               const option = document.createElement('option');
               option.value = category === "All Categories" ? "" : category;
-              // Format category name for display
               let displayName = category.replace(/_/g, " ");
               displayName = displayName.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
               if (category === "All Categories") displayName = "All Categories"; 
@@ -3005,27 +3707,57 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
     filteredProducts.forEach(product => {
         const itemEl = document.createElement('div');
         itemEl.className = 'general-store-product-item';
-        
+
+        const firebaseKey = generateKeyFromTitle(product.title);
+        const stockKey = `${firebaseKey}Stock`;
+        const discountKey = `${firebaseKey}Discount`;
+
+        const isInStock = (stocksAndDiscountsData[stockKey] === "True");
+        const discountPercentageStr = stocksAndDiscountsData[discountKey];
+        const discountValue = discountPercentageStr ? parseFloat(discountPercentageStr.replace('%', '')) : 0;
+
+        let priceHTML = `<p class="product-price">${product.price || 0}৳</p>`;
+        let badgeHTML = '';
+
+        if (discountValue > 0) {
+            const discountedPrice = product.price * (1 - discountValue / 100);
+            priceHTML = `
+                <div class="product-price-container">
+                    <span class="original-price">${product.price}৳</span>
+                    <span class="discounted-price">${Math.round(discountedPrice)}৳</span>
+                </div>`;
+            badgeHTML = `<div class="discount-badge">${discountValue}% OFF</div>`;
+        }
+
+        if (!isInStock) {
+            badgeHTML += `<div class="out-of-stock-badge">OUT OF STOCK</div>`;
+        }
+
         let validityText = "N/A";
         if (product.productValidity) {
             if (product.productValidity.toLowerCase() === "lifetime") {
                 validityText = "Lifetime (30-day active cycles)";
             } else {
-                validityText = product.productValidity.replace(/_/g, " ").replace(/s$/, "s"); 
+                validityText = product.productValidity.replace(/_/g, " ").replace(/s$/, "s");
             }
         }
 
         itemEl.innerHTML = `
+            ${badgeHTML}
             <img src="${product.imageUrl || 'https://via.placeholder.com/150?text=No+Image'}" alt="${product.title || 'Product'}">
             <h3 class="product-title">${product.title || 'Unnamed Product'}</h3>
             <p class="product-description">${product.description || 'No description available.'}</p>
-            <p class="product-validity">Validity: ${validityText}</p> 
-            <p class="product-price">${product.price || 0}৳</p>
-            <button class="buy-item-button">
-                <i class="fas fa-shopping-cart"></i> Buy Now
+            <p class="product-validity">Validity: ${validityText}</p>
+            ${priceHTML}
+            <button class="buy-item-button" ${!isInStock ? 'disabled' : ''}>
+                <i class="fas fa-shopping-cart"></i> ${!isInStock ? 'Out of Stock' : 'Buy Now'}
             </button>
         `;
-        itemEl.querySelector('.buy-item-button').addEventListener('click', () => confirmGeneralStoreItemPurchase(product));
+        
+        if (isInStock) {
+          itemEl.querySelector('.buy-item-button').addEventListener('click', () => confirmGeneralStoreItemPurchase(product));
+        }
+
         productListEl.appendChild(itemEl);
     });
 }
@@ -3033,18 +3765,33 @@ async function sendExpiryNotification(userId, productName, productMapKey) {
 
   function confirmGeneralStoreItemPurchase(productData) {
     if (!currentUser) { alert('Please login first!'); return; }
-    currentGeneralStoreItemForPurchase = productData;
+    
+    let finalPrice = productData.price;
+    const firebaseKey = generateKeyFromTitle(productData.title);
+    const discountKey = `${firebaseKey}Discount`;
+    const discountPercentageStr = stocksAndDiscountsData[discountKey];
+    const discountValue = discountPercentageStr ? parseFloat(discountPercentageStr.replace('%', '')) : 0;
+    
+    if (discountValue > 0) {
+        finalPrice = Math.round(productData.price * (1 - discountValue / 100));
+    }
+    
+    // Create a temporary product object with the final price for the purchase flow
+    const productForPurchase = { ...productData, price: finalPrice };
+    
+    currentGeneralStoreItemForPurchase = productForPurchase;
+    
     const modal = document.getElementById('generalStoreItemPurchaseConfirmationModal');
     document.getElementById('generalStoreItemConfirmImage').innerHTML = `<img src="${productData.imageUrl || 'https://via.placeholder.com/100?text=Item'}" alt="${productData.title || 'Product'}">`;
     
-    let mainMessage = `Are you sure you want to buy <strong>${productData.title}</strong> for <strong>${productData.price}৳</strong>?`;
+    let mainMessage = `Are you sure you want to buy <strong>${productData.title}</strong> for <strong>${finalPrice}৳</strong>?`;
     document.getElementById('generalStoreItemConfirmMessage').innerHTML = mainMessage;
 
     const additionalMsgEl = document.getElementById('generalStoreItemConfirmAdditionalMessage');
     additionalMsgEl.style.display = 'none'; 
     additionalMsgEl.textContent = '';
     
-    document.getElementById('confirmGeneralStoreItemFinalButton').onclick = () => executeGeneralStoreItemPurchase(productData);
+    document.getElementById('confirmGeneralStoreItemFinalButton').onclick = () => executeGeneralStoreItemPurchase(productForPurchase);
     modal.style.display = 'flex';
     modal.classList.add('position-top');
     document.body.style.overflow = 'hidden';
@@ -3237,12 +3984,11 @@ function parseProductValidityToDays(validityString) {
       if (document.getElementById('editProfileModal').style.display === 'flex' || 
           document.getElementById('generalStoreModal').style.display === 'flex' ||
           document.getElementById('packageRenewModal').style.display === 'flex' ||
-          document.getElementById('downloadPanelModal').style.display === 'flex') { // Added downloadPanelModal check
-          // Do not reset body overflow if another modal is active
+          document.getElementById('downloadPanelModal').style.display === 'flex') {
       } else if (dashboardPanel.style.display === 'flex') {
           document.body.style.overflow = 'auto';
       } else {
-          document.body.style.overflow = 'hidden'; // Default to hidden if no other main panel is active
+          document.body.style.overflow = 'hidden';
       }
   }
   async function executeDeleteAccountRequest() {
